@@ -45,7 +45,7 @@
 `timescale 1ns / 1ps
 
 
-module sdr (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
+module sdr (Dq, Dq_o, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
 `include "pocket_parameters.vh"
 
@@ -57,7 +57,8 @@ module sdr (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     input                         We_n;
     input     [ADDR_BITS - 1 : 0] Addr;
     input       [BA_BITS - 1 : 0] Ba;
-    inout       [DQ_BITS - 1 : 0] Dq;
+    input       [DQ_BITS - 1 : 0] Dq;
+    output       [DQ_BITS - 1 : 0] Dq_o;
     input       [DM_BITS - 1 : 0] Dqm;
 
     reg         [DQ_BITS - 1 : 0] Bank0 [0 : mem_sizes];
@@ -124,7 +125,7 @@ module sdr (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     wire      Debug            = 1'b1;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
     
-    assign    Dq               = Dq_reg;                        // DQ buffer
+    assign    Dq_o               = Dq_reg;                        // DQ buffer
 
     // Commands Operation
     `define   ACT       0
