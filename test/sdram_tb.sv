@@ -58,6 +58,7 @@ module sdram_tb;
       .P0_BURST_LENGTH(8)
   ) sdram (
       .clk(clk),
+      .sdram_clk(!clk),
       .reset(reset),
       .init_complete(init_complete),
 

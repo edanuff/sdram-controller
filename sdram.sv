@@ -30,19 +30,28 @@ module sdram #(
     parameter BURST_TYPE = 0,  // 1 for interleaved
     parameter CAS_LATENCY = 2,  // 1, 2, or 3 cycle delays
     parameter WRITE_BURST = 0,  // 1 to enable write bursting
+    parameter DATA_WIDTH = 16,
+    parameter ROW_WIDTH = 13,  // 2K rows
+    parameter COL_WIDTH = 10,   // 256 words per row (1Kbytes)
+    parameter PRECHARGE_BIT = COL_WIDTH,   // high bit of column address
+    parameter BANK_WIDTH = 2,  // 4 banks
+    parameter DQM_WIDTH = 2,  // 4 bytes
+    parameter PORT_ADDR_WIDTH = 25,
 
     // Port config
-    parameter P0_BURST_LENGTH = BURST_LENGTH  // 1, 2, 4, 8 words per read
+    parameter P0_BURST_LENGTH = BURST_LENGTH,  // 1, 2, 4, 8 words per read
+    parameter P0_OUTPUT_WIDTH = P0_BURST_LENGTH * DATA_WIDTH
 ) (
     input wire clk,
+    input wire sdram_clk,
     input wire reset,  // Used to trigger start of FSM
     output wire init_complete,  // SDRAM is done initializing
 
     // Port 0
-    input wire [24:0] p0_addr,
-    input wire [15:0] p0_data,
-    input wire [1:0] p0_byte_en,  // Byte enable for writes
-    output reg [P0_BURST_LENGTH * 16 - 1:0] p0_q,
+    input wire [PORT_ADDR_WIDTH-1:0] p0_addr,
+    input wire [DATA_WIDTH-1:0] p0_data,
+    input wire [DQM_WIDTH-1:0] p0_byte_en,  // Byte enable for writes
+    output reg [P0_OUTPUT_WIDTH-1:0] p0_q,
 
     input wire p0_wr_req,
     input wire p0_rd_req,
@@ -50,10 +59,10 @@ module sdram #(
     output wire p0_available,  // The port is able to be used
     output reg  p0_ready = 0,  // The port has finished its task. Will rise for a single cycle
 
-    inout  wire [15:0] SDRAM_DQ,    // Bidirectional data bus
-    output reg  [12:0] SDRAM_A,     // Address bus
-    output reg  [ 1:0] SDRAM_DQM,   // High/low byte mask
-    output reg  [ 1:0] SDRAM_BA,    // Bank select (single bits)
+    inout  wire [DATA_WIDTH-1:0] SDRAM_DQ,    // Bidirectional data bus
+    output reg  [ROW_WIDTH-1:0] SDRAM_A,     // Address bus
+    output reg  [DQM_WIDTH-1:0] SDRAM_DQM,   // High/low byte mask
+    output reg  [BANK_WIDTH-1:0] SDRAM_BA,    // Bank select (single bits)
     output wire        SDRAM_nCS,   // Chip select, neg triggered
     output wire        SDRAM_nWE,   // Write enable, neg triggered
     output wire        SDRAM_nRAS,  // Select row address, neg triggered
@@ -155,12 +164,10 @@ module sdram #(
     3'b0, ~WRITE_BURST[0], 2'b0, CAS_LATENCY[2:0], BURST_TYPE[0], concrete_burst_length
   };
 
-  localparam P0_OUTPUT_WIDTH = P0_BURST_LENGTH * 16 - 1;
-
   typedef struct packed {
-    reg [9:0]  port_addr;
-    reg [15:0] port_data;
-    reg [1:0]  port_byte_en;
+    reg [COL_WIDTH-1:0]  port_addr;
+    reg [DATA_WIDTH-1:0] port_data;
+    reg [DQM_WIDTH-1:0]  port_byte_en;
   } port_selection;
 
   // nCS, nRAS, nCAS, nWE
@@ -214,17 +221,21 @@ module sdram #(
   ////////////////////////////////////////////////////////////////////////////////////////
   // Port specifics
 
+  reg p0_wr_prev = 0;
+  wire p0_wr_start = p0_wr_req && !p0_wr_prev;
+  reg p0_rd_prev = 0;
+  wire p0_rd_start = p0_rd_req && !p0_rd_prev;
   // Cache the signals we received, potentially while busy
   reg p0_wr_queue = 0;
   reg p0_rd_queue = 0;
-  reg [1:0] p0_byte_en_queue = 0;
-  reg [24:0] p0_addr_queue = 0;
-  reg [15:0] p0_data_queue = 0;
+  reg [DQM_WIDTH-1:0] p0_byte_en_queue = 0;
+  reg [PORT_ADDR_WIDTH-1:0] p0_addr_queue = 0;
+  reg [DATA_WIDTH-1:0] p0_data_queue = 0;
 
   wire p0_req = p0_wr_req || p0_rd_req;
   wire p0_req_queue = p0_wr_queue || p0_rd_queue;
   // The current p0 address that should be used for any operations on this first cycle only
-  wire [24:0] p0_addr_current = p0_req_queue ? p0_addr_queue : p0_addr;
+  wire [PORT_ADDR_WIDTH-1:0] p0_addr_current = p0_req_queue ? p0_addr_queue : p0_addr;
 
   // An active new request or cached request
   wire port_req = p0_req || p0_req_queue;
@@ -233,14 +244,14 @@ module sdram #(
   // Helpers
 
   // Activates a row
-  task set_active_command(reg [1:0] port, reg [24:0] addr);
+  task set_active_command(reg [1:0] port, reg [PORT_ADDR_WIDTH-1:0] addr);
     sdram_command <= COMMAND_ACTIVE;
 
     // Upper two bits choose the bank
-    SDRAM_BA <= addr[24:23];
+    SDRAM_BA <= addr[PORT_ADDR_WIDTH-1:PORT_ADDR_WIDTH-2];
 
     // Row address
-    SDRAM_A <= addr[22:10];
+    SDRAM_A <= addr[PORT_ADDR_WIDTH-3:COL_WIDTH];
 
     active_port <= port;
     // Current construction takes two cycles to write next data
@@ -250,13 +261,13 @@ module sdram #(
   function port_selection get_active_port();
     port_selection selection;
 
-    selection.port_addr = 10'h0;
-    selection.port_data = 16'h0;
-    selection.port_byte_en = 2'h0;
+    selection.port_addr = '0;
+    selection.port_data ='0;
+    selection.port_byte_en = '0;
 
     case (active_port)
       0: begin
-        selection.port_addr = p0_addr_queue[9:0];
+        selection.port_addr = p0_addr_queue[COL_WIDTH-1:0];
         selection.port_data = p0_data_queue;
         selection.port_byte_en = p0_byte_en_queue;
       end
@@ -267,18 +278,16 @@ module sdram #(
 
   reg dq_output = 0;
 
-  reg [15:0] sdram_data = 0;
-  assign SDRAM_DQ = dq_output ? sdram_data : 16'hZZZZ;
+  reg [DATA_WIDTH-1:0] sdram_data = 0;
+  assign SDRAM_DQ = dq_output ? sdram_data : 'Z;
 
   assign init_complete = state != INIT;
 
   assign p0_available = state == IDLE && ~port_req;
 
-  reg [15:0] sdram_dq_reg = 0;
-  always @(posedge SDRAM_CLK) begin
-    sdram_dq_reg <= SDRAM_DQ;
-  end
-
+  reg [DATA_WIDTH-1:0] sdram_dq_reg;
+  always @(posedge sdram_clk) sdram_dq_reg <= SDRAM_DQ;
+  
   ////////////////////////////////////////////////////////////////////////////////////////
   // Process
 
@@ -303,14 +312,16 @@ module sdram #(
 
       p0_q <= 0;
     end else begin
+      p0_wr_prev <= p0_wr_req;
+      p0_rd_prev <= p0_rd_req;
       // Cache port 0 input values
-      if (p0_wr_req && current_io_operation != IO_WRITE) begin
+      if (p0_wr_start /*&& current_io_operation != IO_WRITE*/) begin
         p0_wr_queue <= 1;
 
         p0_byte_en_queue <= p0_byte_en;
         p0_addr_queue <= p0_addr;
         p0_data_queue <= p0_data;
-      end else if (p0_rd_req && current_io_operation != IO_READ) begin
+      end else if (p0_rd_start /*&& current_io_operation != IO_READ*/) begin
         p0_rd_queue   <= 1;
 
         p0_addr_queue <= p0_addr;
@@ -339,7 +350,7 @@ module sdram #(
             sdram_command <= COMMAND_PRECHARGE;
 
             // Mark all banks for refresh
-            SDRAM_A[10]   <= 1;
+            SDRAM_A[PRECHARGE_BIT]   <= 1;
           end else if (delay_counter == CYCLES_UNTIL_INIT_PRECHARGE_END || delay_counter == CYCLES_UNTIL_REFRESH1_END) begin
             // Precharge done (or first auto refresh), auto refresh
             // CKE high specifies auto refresh
@@ -350,7 +361,7 @@ module sdram #(
             // Second auto refresh done, load mode register
             sdram_command <= COMMAND_LOAD_MODE_REG;
 
-            SDRAM_BA <= 2'b0;
+            SDRAM_BA <= '0;
 
             SDRAM_A <= configured_mode;
           end else if (delay_counter == CYCLES_UNTIL_REFRESH2_END + SETTING_T_MRD_MIN_LOAD_MODE_CLOCK_CYCLES) begin
@@ -375,7 +386,7 @@ module sdram #(
             refresh_counter <= 0;
 
             sdram_command <= COMMAND_AUTO_REFRESH;
-          end else if (p0_wr_req || p0_wr_queue) begin
+          end else if (p0_wr_start || p0_wr_queue) begin
             // Port 0 write
             state <= DELAY;
             delay_state <= WRITE;
@@ -386,7 +397,7 @@ module sdram #(
             p0_wr_queue <= 0;
 
             set_active_command(0, p0_addr_current);
-          end else if (p0_rd_req || p0_rd_queue) begin
+          end else if (p0_rd_start || p0_rd_queue) begin
             // Port 0 read
             state <= DELAY;
             delay_state <= READ;
@@ -425,7 +436,9 @@ module sdram #(
 
           // NOTE: Bank is still set from ACTIVE command assertion
           // High bit enables auto precharge. I assume the top 2 bits are unused
-          SDRAM_A <= {2'b0, 1'b1, active_port_entries.port_addr};
+          SDRAM_A <= '0;
+          SDRAM_A[PRECHARGE_BIT] <= 1'b1;
+          SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
           // Enable DQ output
           dq_output <= 1;
           sdram_data <= active_port_entries.port_data;
@@ -460,18 +473,20 @@ module sdram #(
 
           // NOTE: Bank is still set from ACTIVE command assertion
           // High bit enables auto precharge. I assume the top 2 bits are unused
-          SDRAM_A <= {2'b0, 1'b1, active_port_entries.port_addr};
+          SDRAM_A <= '0;
+          SDRAM_A[PRECHARGE_BIT] <= 1'b1;
+          SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
 
           // Fetch all bytes
           SDRAM_DQM <= 2'b0;
         end
         READ_OUTPUT: begin
-          reg [127:0] temp;
+          reg [P0_OUTPUT_WIDTH-1:0] temp;
           reg [  3:0] expected_count;
 
           case (active_port)
             0: begin
-              temp[P0_OUTPUT_WIDTH:0] = p0_q;
+              temp[P0_OUTPUT_WIDTH-1:0] = p0_q;
 
               expected_count = P0_BURST_LENGTH;
             end
@@ -485,19 +500,19 @@ module sdram #(
           end
 
           case (read_counter)
-            0: temp[15:0] = sdram_dq_reg;
-            1: temp[31:16] = sdram_dq_reg;
-            2: temp[47:32] = sdram_dq_reg;
-            3: temp[63:48] = sdram_dq_reg;
-            4: temp[79:64] = sdram_dq_reg;
-            5: temp[95:80] = sdram_dq_reg;
-            6: temp[111:96] = sdram_dq_reg;
-            7: temp[127:112] = sdram_dq_reg;
+            0: temp[DATA_WIDTH-1:0] = sdram_dq_reg;
+            1: temp[(2*DATA_WIDTH)-1:DATA_WIDTH] = sdram_dq_reg;
+            2: temp[(3*DATA_WIDTH)-1:(2*DATA_WIDTH)] = sdram_dq_reg;
+            3: temp[(4*DATA_WIDTH)-1:(3*DATA_WIDTH)] = sdram_dq_reg;
+            4: temp[(5*DATA_WIDTH)-1:(4*DATA_WIDTH)] = sdram_dq_reg;
+            5: temp[(6*DATA_WIDTH)-1:(5*DATA_WIDTH)] = sdram_dq_reg;
+            6: temp[(7*DATA_WIDTH)-1:(6*DATA_WIDTH)] = sdram_dq_reg;
+            7: temp[(8*DATA_WIDTH)-1:(7*DATA_WIDTH)] = sdram_dq_reg;
           endcase
 
           case (active_port)
             0: begin
-              p0_q <= temp[P0_OUTPUT_WIDTH:0];
+              p0_q <= temp[P0_OUTPUT_WIDTH-1:0];
 
               if (read_counter == expected_count) begin
                 p0_ready <= 1;
@@ -509,7 +524,7 @@ module sdram #(
     end
   end
 
-  assign SDRAM_CLK = !clk;
+  assign SDRAM_CLK = sdram_clk;
 
   // This DDIO block doesn't double the clock, it just relocates the RAM clock to trigger
   // on the negative edge
@@ -578,7 +593,7 @@ module sdram #(
 
     $info("--------------------");
     $info("Port values:");
-    $info("  Port 0 burst length %d, port width %d", P0_BURST_LENGTH, P0_OUTPUT_WIDTH + 1);
+    $info("  Port 0 burst length %d, port width %d", P0_BURST_LENGTH, P0_OUTPUT_WIDTH);
 
     if (P0_BURST_LENGTH > BURST_LENGTH) begin
       $error("Port 0 burst length exceeds global burst length");
