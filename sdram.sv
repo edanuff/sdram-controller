@@ -282,6 +282,9 @@ module sdram #(
 
   assign p0_available = state == IDLE && ~port_req;
 
+  reg [DATA_WIDTH-1:0] dq_reg;
+  always @(posedge sdram_clk) dq_reg <= SDRAM_DQ;
+
   ////////////////////////////////////////////////////////////////////////////////////////
   // Process
 
@@ -307,6 +310,7 @@ module sdram #(
       p0_q <= 0;
     end else begin
       // Cache port 0 input values
+      //$display("%m : FSM checking current_io_operation = ", current_io_operation);
       if (p0_wr_req && current_io_operation != IO_WRITE) begin
         p0_wr_queue <= 1;
 
@@ -400,6 +404,7 @@ module sdram #(
           end
         end
         DELAY: begin
+          $display("%m : DELAY %d", delay_counter);
           if (delay_counter > 0) begin
             delay_counter <= delay_counter - 32'h1;
           end else begin
@@ -411,6 +416,7 @@ module sdram #(
                 0: p0_ready <= 1;
               endcase
               current_io_operation <= IO_NONE;
+              $display("%m : DELAY resetting current_io_operation from ", current_io_operation);
             end
           end
         end
@@ -510,8 +516,9 @@ module sdram #(
             end
           endcase
           */
-          p0_q <= SDRAM_DQ;
-          p0_ready <= 1;
+          p0_q <= dq_reg;
+          state <= DELAY;
+          delay_state <= IDLE;
         end
       endcase
     end
