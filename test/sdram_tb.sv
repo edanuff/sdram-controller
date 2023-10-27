@@ -2,11 +2,17 @@
 
 module sdram_tb;
 
-  reg clk = 0;
+  // VCD Dumping
+  initial begin
+      $dumpfile("sdram_tb.vcd");
+      $dumpvars(0, sdram_tb);
+  end  reg clk = 0;
+  
   reg reset = 0;
 
   wire init_complete;
   wire p0_ready;
+  wire p0_available;
 
   reg [24:0] p0_addr = 0;
   reg [15:0] p0_data = 0;
@@ -31,6 +37,7 @@ module sdram_tb;
   wire cas_n;
   wire cke;
   wire chip_clk;
+  wire [2:0] sdram_cmd = {ras_n, cas_n, we_n};
 
   sdr sdram0 (
       dq,
@@ -64,6 +71,7 @@ module sdram_tb;
       .p0_rd_req(p0_rd_req),
 
       .p0_ready(p0_ready),
+      .p0_available(p0_available),
 
       .SDRAM_DQ(dq),
       .SDRAM_A(addr),
@@ -77,6 +85,14 @@ module sdram_tb;
       .SDRAM_CLK(chip_clk)
   );
 
+    always @(p0_rd_req, p0_wr_req, p0_addr, p0_data, p0_q, p0_ready, p0_available) begin
+        $display("Time: %0t | Port 0 | RD: %b WR: %b ADDR: %h DIN: %h DOUT: %h READY: %b AVAIL: %b", $time, p0_rd_req, p0_wr_req, p0_addr, p0_data, p0_q, p0_ready, p0_available);
+    end
+    
+    always @(sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke) begin
+        $display("Time: %0t | CMD: %h SDRAM_DQ: %h SDRAM_A: %h SDRAM_DQM: %b SDRAM_BA: %b SDRAM_nCS: %b SDRAM_nWE: %b SDRAM_nRAS: %b SDRAM_nCAS: %b SDRAM_CKE: %b", $time, sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke);
+    end
+
   initial begin
     reset = 1;
 
@@ -85,7 +101,7 @@ module sdram_tb;
     reset = 0;
 
     // #100000;
-    @(posedge clk iff init_complete);
+    wait(init_complete);
     $display("Init complete at %t", $time());
 
     #10;
@@ -102,7 +118,7 @@ module sdram_tb;
     #20;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -116,7 +132,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -130,7 +146,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -144,7 +160,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -158,7 +174,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -172,7 +188,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -186,7 +202,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -200,7 +216,7 @@ module sdram_tb;
     p0_data   = 0;
     p0_wr_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
@@ -215,11 +231,11 @@ module sdram_tb;
     p0_addr   = 0;
     p0_rd_req = 0;
 
-    @(posedge clk iff p0_ready);
+    wait(p0_ready);
 
     #10;
 
-    $stop();
+    $finish();
   end
 
 endmodule

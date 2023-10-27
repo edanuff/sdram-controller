@@ -157,7 +157,7 @@ module sdram #(
 
   localparam P0_OUTPUT_WIDTH = P0_BURST_LENGTH * 16 - 1;
 
-  typedef struct {
+  typedef struct packed {
     reg [9:0]  port_addr;
     reg [15:0] port_data;
     reg [1:0]  port_byte_en;
@@ -273,6 +273,11 @@ module sdram #(
   assign init_complete = state != INIT;
 
   assign p0_available = state == IDLE && ~port_req;
+
+  reg [15:0] sdram_dq_reg = 0;
+  always @(posedge SDRAM_CLK) begin
+    sdram_dq_reg <= SDRAM_DQ;
+  end
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Process
@@ -480,14 +485,14 @@ module sdram #(
           end
 
           case (read_counter)
-            0: temp[15:0] = SDRAM_DQ;
-            1: temp[31:16] = SDRAM_DQ;
-            2: temp[47:32] = SDRAM_DQ;
-            3: temp[63:48] = SDRAM_DQ;
-            4: temp[79:64] = SDRAM_DQ;
-            5: temp[95:80] = SDRAM_DQ;
-            6: temp[111:96] = SDRAM_DQ;
-            7: temp[127:112] = SDRAM_DQ;
+            0: temp[15:0] = sdram_dq_reg;
+            1: temp[31:16] = sdram_dq_reg;
+            2: temp[47:32] = sdram_dq_reg;
+            3: temp[63:48] = sdram_dq_reg;
+            4: temp[79:64] = sdram_dq_reg;
+            5: temp[95:80] = sdram_dq_reg;
+            6: temp[111:96] = sdram_dq_reg;
+            7: temp[127:112] = sdram_dq_reg;
           endcase
 
           case (active_port)
@@ -504,8 +509,11 @@ module sdram #(
     end
   end
 
+  assign SDRAM_CLK = !clk;
+
   // This DDIO block doesn't double the clock, it just relocates the RAM clock to trigger
   // on the negative edge
+  /*
   altddio_out #(
       .extend_oe_disable("OFF"),
       .intended_device_family("Cyclone V"),
@@ -527,6 +535,7 @@ module sdram #(
       // .sclr(),
       // .sset()
   );
+  */
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Parameter validation
