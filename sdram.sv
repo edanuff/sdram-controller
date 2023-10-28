@@ -26,19 +26,61 @@ endfunction
 
 module sdram #(
     parameter CLOCK_SPEED_MHZ = 0,
+
     parameter BURST_LENGTH = 1,  // 1, 2, 4, 8 words per read
     parameter BURST_TYPE = 0,  // 1 for interleaved
-    parameter CAS_LATENCY = 2,  // 1, 2, or 3 cycle delays
     parameter WRITE_BURST = 0,  // 1 to enable write bursting
+
+    parameter CAS_LATENCY = 2,  // 1, 2, or 3 cycle delays
+
     parameter DATA_WIDTH = 16,
     parameter ROW_WIDTH = 13,  // 2K rows
     parameter COL_WIDTH = 10,   // 256 words per row (1Kbytes)
-    parameter PRECHARGE_BIT = COL_WIDTH,   // high bit of column address
+    parameter PRECHARGE_BIT = 10, // Default to A10 for precharge
     parameter BANK_WIDTH = 2,  // 4 banks
-    parameter DQM_WIDTH = 2,  // 4 bytes
-    parameter PORT_ADDR_WIDTH = 25,
+    parameter DQM_WIDTH = 2,  // 2 bytes
+
+    // SDRAM Config values
+    parameter SETTING_INHIBIT_DELAY_MICRO_SEC = 100,
+
+    // tCK - Min clock cycle time
+    parameter SETTING_T_CK_MIN_CLOCK_CYCLE_TIME_NANO_SEC = 6,
+
+    // tRAS - Min row active time
+    parameter SETTING_T_RAS_MIN_ROW_ACTIVE_TIME_NANO_SEC = 48,
+
+    // tRC - Min row cycle time
+    parameter SETTING_T_RC_MIN_ROW_CYCLE_TIME_NANO_SEC = 60,
+
+    // tRP - Min precharge command period
+    parameter SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC = 18,
+
+    // tRFC - Min autorefresh period
+    parameter SETTING_T_RFC_MIN_AUTOREFRESH_PERIOD_NANO_SEC = 80,
+
+    // tRC - Min active to active command period for the same bank
+    parameter SETTING_T_RC_MIN_ACTIVE_TO_ACTIVE_PERIOD_NANO_SEC = 60,
+
+    // tRCD - Min read/write delay
+    parameter SETTING_T_RCD_MIN_READ_WRITE_DELAY_NANO_SEC = 18,
+
+    // tWR - Min write auto precharge recovery time
+    parameter SETTING_T_WR_MIN_WRITE_AUTO_PRECHARGE_RECOVERY_NANO_SEC = 15,
+
+    // tMRD - Min number of clock cycles between mode set and normal usage
+    parameter SETTING_T_MRD_MIN_LOAD_MODE_CLOCK_CYCLES = 2,
+
+    // 8,192 refresh commands every 64ms = 7.8125us, which we round to 7500ns to make sure we hit them all
+    parameter SETTING_REFRESH_TIMER_NANO_SEC = 7500,
+
+    // Reads will be delayed by 1 cycle when enabled
+    // Highly recommended that you use with SDRAM with FAST_INPUT_REGISTER enabled for timing and stability
+    // This makes read timing incompatible with the test model
+    parameter SETTING_USE_FAST_INPUT_REGISTER = 1,
 
     // Port config
+
+    parameter PORT_ADDR_WIDTH = 25,
     parameter P0_BURST_LENGTH = BURST_LENGTH,  // 1, 2, 4, 8 words per read
     parameter P0_OUTPUT_WIDTH = P0_BURST_LENGTH * DATA_WIDTH
 ) (
@@ -70,45 +112,6 @@ module sdram #(
     output reg         SDRAM_CKE,   // Clock enable
     output wire        SDRAM_CLK    // Chip clock
 );
-  // Config values
-  // NOTE: These are configured by default for the Pocket's SDRAM
-  localparam SETTING_INHIBIT_DELAY_MICRO_SEC = 100;
-
-  // tCK - Min clock cycle time
-  localparam SETTING_T_CK_MIN_CLOCK_CYCLE_TIME_NANO_SEC = 6;
-
-  // tRAS - Min row active time
-  localparam SETTING_T_RAS_MIN_ROW_ACTIVE_TIME_NANO_SEC = 48;
-
-  // tRC - Min row cycle time
-  localparam SETTING_T_RC_MIN_ROW_CYCLE_TIME_NANO_SEC = 60;
-
-  // tRP - Min precharge command period
-  localparam SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC = 18;
-
-  // tRFC - Min autorefresh period
-  localparam SETTING_T_RFC_MIN_AUTOREFRESH_PERIOD_NANO_SEC = 80;
-
-  // tRC - Min active to active command period for the same bank
-  localparam SETTING_T_RC_MIN_ACTIVE_TO_ACTIVE_PERIOD_NANO_SEC = 60;
-
-  // tRCD - Min read/write delay
-  localparam SETTING_T_RCD_MIN_READ_WRITE_DELAY_NANO_SEC = 18;
-
-  // tWR - Min write auto precharge recovery time
-  localparam SETTING_T_WR_MIN_WRITE_AUTO_PRECHARGE_RECOVERY_NANO_SEC = 15;
-
-  // tMRD - Min number of clock cycles between mode set and normal usage
-  localparam SETTING_T_MRD_MIN_LOAD_MODE_CLOCK_CYCLES = 2;
-
-  // 8,192 refresh commands every 64ms = 7.8125us, which we round to 7500ns to make sure we hit them all
-  localparam SETTING_REFRESH_TIMER_NANO_SEC = 7500;
-
-  // Reads will be delayed by 1 cycle when enabled
-  // Highly recommended that you use with SDRAM with FAST_INPUT_REGISTER enabled for timing and stability
-  // This makes read timing incompatible with the test model
-  localparam SETTING_USE_FAST_INPUT_REGISTER = 1;
-
   ////////////////////////////////////////////////////////////////////////////////////////
   // Generated parameters
 
@@ -428,7 +431,7 @@ module sdram #(
           state <= DELAY;
           // A write must wait for auto precharge (tWR) and precharge command period (tRP)
           // Takes one cycle to get back to IDLE, and another to read command
-          delay_counter <= CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND - 32'h2;
+          delay_counter <= CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND;
 
           active_port_entries = get_active_port();
 
