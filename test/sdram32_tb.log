@@ -1,42 +1,42 @@
-INFO: ../sdram.sv:563: Instantiated SDRAM with the following settings
+INFO: ../sdram.sv:604: Instantiated SDRAM with the following settings
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:564:   Clock speed 100.000000, period 10.000000
+INFO: ../sdram.sv:605:   Clock speed 100.000000, period 10.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:570: --------------------
+INFO: ../sdram.sv:611: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:571: Configured values:
+INFO: ../sdram.sv:612: Configured values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:572:   CAS Latency 00000002
+INFO: ../sdram.sv:613:   CAS Latency 00000002
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:578:   Burst length 00000001
+INFO: ../sdram.sv:619:   Burst length 00000001
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:584:   Burst type  Sequential
+INFO: ../sdram.sv:625:   Burst type  Sequential
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:591:   Write burst Single word write
+INFO: ../sdram.sv:632:   Write burst Single word write
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:598: --------------------
+INFO: ../sdram.sv:639: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:599: Port values:
+INFO: ../sdram.sv:640: Port values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:600:   Port 0 burst length           1, port width                   32
+INFO: ../sdram.sv:641:   Port 0 burst length           1, port width          32
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:606: --------------------
+INFO: ../sdram.sv:647: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:607: Delays:
+INFO: ../sdram.sv:648: Delays:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:608:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
+INFO: ../sdram.sv:649:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:611:   Cycles between autorefresh instances 1501.000000
+INFO: ../sdram.sv:652:   Cycles between autorefresh instances 1501.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:613:   CYCLES_FOR_AUTOREFRESH 9.000000
+INFO: ../sdram.sv:654:   CYCLES_FOR_AUTOREFRESH 9.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:614:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
+INFO: ../sdram.sv:655:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:616:   Cycles until between active commands 7.000000, command duration 2.000000
+INFO: ../sdram.sv:657:   Cycles until between active commands 7.000000, command duration 2.000000
       Time: 0  Scope: sdram32_tb.sdram
 VCD info: dumpfile sdram32_tb.vcd opened for output.
 Time: 0.0 ns | CMD: 0 SDRAM_DQ: zzzzzzzz SDRAM_A: xxx SDRAM_DQM: xxxx SDRAM_BA: xx SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 0 SDRAM_nCAS: 0 SDRAM_CKE: x
-Time: 0.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: xxxxxxxx READY: 0 AVAIL: 0
+Time: 0.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: xxxxxxxx READY: x AVAIL: 0
 Time: 10.0 ns | CMD: 0 SDRAM_DQ: zzzzzzzz SDRAM_A: xxx SDRAM_DQM: xxxx SDRAM_BA: xx SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 0 SDRAM_nCAS: 0 SDRAM_CKE: 0
 Time: 10.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 10.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: xxx SDRAM_DQM: xxxx SDRAM_BA: xx SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 0
@@ -59,24 +59,25 @@ Time: 101360.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 220 SDRAM_DQM: xxxx SDRAM
 Init complete at  101370.0 ns
 Time: 101370.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 00000000 READY: 0 AVAIL: 1
 Write 1 at  101395.0 ns
+Write 1a
 Time: 101395.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002020 DIN: 00001234 DOUT: 00000000 READY: 0 AVAIL: 1
 Time: 101395.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002020 DIN: 00001234 DOUT: 00000000 READY: 0 AVAIL: 0
-Time: 101400.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101400.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: xxxx SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101405.0 ns ACT  : Bank = 0 Row =   16
 Time: 101410.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: xxxx SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
+Write 1b
 Time: 101415.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 000000 DIN: 00000000 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101420.0 ns | CMD: 4 SDRAM_DQ: zzzzzzzz SDRAM_A: 420 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 1 SDRAM_nCAS: 0 SDRAM_CKE: 1
 Time: 101420.0 ns | CMD: 4 SDRAM_DQ: 00001234 SDRAM_A: 420 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 1 SDRAM_nCAS: 0 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101425.0 ns WRITE: Bank = 0 Row =   16, Col =  32, Data =       4660
 Time: 101430.0 ns | CMD: 7 SDRAM_DQ: 00001234 SDRAM_A: 420 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
+Write 1c
 Time: 101435.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 00000000 READY: 0 AVAIL: 0
 sdram32_tb.sdram0 : at time  101455.0 ns NOTE : Start Internal Auto Precharge for Bank 0
 Time: 101470.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 00000000 READY: 1 AVAIL: 1
 Write 2 at  101475.0 ns
 Time: 101475.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002021 DIN: 00005678 DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101475.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002021 DIN: 00005678 DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101480.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101480.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002021 DIN: 00005678 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101480.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101485.0 ns ACT  : Bank = 0 Row =   16
@@ -92,7 +93,6 @@ Time: 101550.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 3 at  101555.0 ns
 Time: 101555.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002022 DIN: 00009abc DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101555.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002022 DIN: 00009abc DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101560.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101560.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002022 DIN: 00009abc DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101560.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101565.0 ns ACT  : Bank = 0 Row =   16
@@ -107,7 +107,6 @@ Time: 101630.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 4 at  101635.0 ns
 Time: 101635.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002023 DIN: 0000def0 DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101635.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002023 DIN: 0000def0 DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101640.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101640.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002023 DIN: 0000def0 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101640.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101645.0 ns ACT  : Bank = 0 Row =   16
@@ -122,7 +121,6 @@ Time: 101710.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 5 at  101715.0 ns
 Time: 101715.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002024 DIN: 0000fedc DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101715.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002024 DIN: 0000fedc DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101720.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101720.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002024 DIN: 0000fedc DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101720.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101725.0 ns ACT  : Bank = 0 Row =   16
@@ -137,7 +135,6 @@ Time: 101790.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 6 at  101795.0 ns
 Time: 101795.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002025 DIN: 0000ba98 DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101795.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002025 DIN: 0000ba98 DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101800.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101800.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002025 DIN: 0000ba98 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101800.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101805.0 ns ACT  : Bank = 0 Row =   16
@@ -152,7 +149,6 @@ Time: 101870.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 7 at  101875.0 ns
 Time: 101875.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002026 DIN: 00007654 DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101875.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002026 DIN: 00007654 DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101880.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101880.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002026 DIN: 00007654 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101880.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101885.0 ns ACT  : Bank = 0 Row =   16
@@ -167,7 +163,6 @@ Time: 101950.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Write 8 at  101955.0 ns
 Time: 101955.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002027 DIN: 00003210 DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 101955.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002027 DIN: 00003210 DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 101960.0 ns | Port 0 | RD: 0 WR: 1 RDQ: 0 WRQ: 0
 Time: 101960.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002027 DIN: 00003210 DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 101960.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  101965.0 ns ACT  : Bank = 0 Row =   16
@@ -182,13 +177,11 @@ Time: 102030.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 00000000 DOUT: 000000
 Read 1 at  102035.0 ns
 Time: 102035.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002020 DIN: 0000ffff DOUT: 00000000 READY: 1 AVAIL: 1
 Time: 102035.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002020 DIN: 0000ffff DOUT: 00000000 READY: 1 AVAIL: 0
-Time: 102040.0 ns | Port 0 | RD: 1 WR: 0 RDQ: 1 WRQ: 0
 Time: 102040.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002020 DIN: 0000ffff DOUT: 00000000 READY: 0 AVAIL: 0
 Time: 102040.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  102045.0 ns ACT  : Bank = 0 Row =   16
 Time: 102050.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
 Time: 102055.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00000000 READY: 0 AVAIL: 0
-Time: 102060.0 ns | Port 0 | RD: 0 WR: 0 RDQ: 0 WRQ: 0
 Time: 102060.0 ns | CMD: 5 SDRAM_DQ: zzzzzzzz SDRAM_A: 420 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 0 SDRAM_CKE: 1
 Time: 102070.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 420 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  102081.0 ns READ : Bank = 0 Row =   16, Col =  32, Data =       4660
@@ -200,13 +193,11 @@ Time: 102100.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 000012
 Read 2 at  102105.0 ns
 Time: 102105.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002021 DIN: 0000ffff DOUT: 00001234 READY: 1 AVAIL: 1
 Time: 102105.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002021 DIN: 0000ffff DOUT: 00001234 READY: 1 AVAIL: 0
-Time: 102110.0 ns | Port 0 | RD: 1 WR: 0 RDQ: 1 WRQ: 0
 Time: 102110.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002021 DIN: 0000ffff DOUT: 00001234 READY: 0 AVAIL: 0
 Time: 102110.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 Time: 102115.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00001234 READY: 0 AVAIL: 0
 sdram32_tb.sdram0 : at time  102115.0 ns ACT  : Bank = 0 Row =   16
 Time: 102120.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
-Time: 102130.0 ns | Port 0 | RD: 0 WR: 0 RDQ: 0 WRQ: 0
 Time: 102130.0 ns | CMD: 5 SDRAM_DQ: zzzzzzzz SDRAM_A: 421 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 0 SDRAM_CKE: 1
 Time: 102140.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 421 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  102151.0 ns READ : Bank = 0 Row =   16, Col =  33, Data =      22136
@@ -219,12 +210,10 @@ Time: 102180.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 000056
 refresh 1 at  108885.0 ns
 Time: 108885.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002022 DIN: 0000ffff DOUT: 00005678 READY: 0 AVAIL: 1
 Time: 108885.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002022 DIN: 0000ffff DOUT: 00005678 READY: 0 AVAIL: 0
-Time: 108890.0 ns | Port 0 | RD: 1 WR: 0 RDQ: 1 WRQ: 0
 Time: 108890.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
 Time: 108895.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00005678 READY: 0 AVAIL: 0
 sdram32_tb.sdram0 : at time  108895.0 ns ACT  : Bank = 0 Row =   16
 Time: 108900.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
-Time: 108910.0 ns | Port 0 | RD: 0 WR: 0 RDQ: 0 WRQ: 0
 Time: 108910.0 ns | CMD: 5 SDRAM_DQ: zzzzzzzz SDRAM_A: 422 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 0 SDRAM_CKE: 1
 Time: 108920.0 ns | CMD: 7 SDRAM_DQ: zzzzzzzz SDRAM_A: 422 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 1 SDRAM_nCAS: 1 SDRAM_CKE: 1
 sdram32_tb.sdram0 : at time  108931.0 ns READ : Bank = 0 Row =   16, Col =  34, Data =      39612
@@ -234,4 +223,4 @@ Time: 108940.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00009a
 sdram32_tb.sdram0 : at time  108945.0 ns NOTE : Start Internal Auto Precharge for Bank 0
 Time: 108950.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00009abc READY: 1 AVAIL: 1
 Time: 108960.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00009abc READY: 0 AVAIL: 1
-sdram32_tb.sv:300: $finish called at 109895000 (1ps)
+sdram32_tb.sv:336: $finish called at 109895000 (1ps)
