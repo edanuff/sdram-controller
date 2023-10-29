@@ -1,5 +1,5 @@
 $date
-	Sat Oct 28 19:44:46 2023
+	Sun Oct 29 10:52:19 2023
 $end
 $version
 	Icarus Verilog
@@ -115,22 +115,16 @@ $var reg 45 } selection [44:0] $end
 $upscope $end
 $scope function get_priority_port $end
 $scope begin $ivl_for_loop0 $end
-$scope begin priority_loop $end
-$upscope $end
 $upscope $end
 $upscope $end
 $scope function port_rd_pending $end
 $scope begin $ivl_for_loop2 $end
 $var integer 32 ~ i [31:0] $end
-$scope begin rd_pending_loop $end
-$upscope $end
 $upscope $end
 $upscope $end
 $scope function port_wr_pending $end
 $scope begin $ivl_for_loop1 $end
 $var integer 32 !" i [31:0] $end
-$scope begin wr_pending_loop $end
-$upscope $end
 $upscope $end
 $upscope $end
 $scope begin port_loop[0] $end
@@ -148,13 +142,13 @@ $upscope $end
 $scope begin $ivl_for_loop5 $end
 $var integer 32 &" i [31:0] $end
 $upscope $end
-$scope begin $unm_blk_27 $end
+$scope begin $unm_blk_30 $end
 $var reg 45 '" active_port_entries [44:0] $end
 $upscope $end
-$scope begin $unm_blk_28 $end
+$scope begin $unm_blk_31 $end
 $var reg 45 (" active_port_entries [44:0] $end
 $upscope $end
-$scope begin $unm_blk_31 $end
+$scope begin $unm_blk_34 $end
 $var reg 4 )" expected_count [3:0] $end
 $var reg 32 *" temp [31:0] $end
 $upscope $end
@@ -117406,7 +117400,7 @@ b10 |
 b11 v
 0.#
 0+"
-b10 !"
+b0 !"
 b10 &"
 b10 %"
 0/
@@ -117604,7 +117598,6 @@ b1 y
 0t
 b1011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -117792,7 +117785,6 @@ b1 y
 0t
 b10011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -117980,7 +117972,6 @@ b1 y
 0t
 b11011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -118168,7 +118159,6 @@ b1 y
 0t
 b100011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -118356,7 +118346,6 @@ b1 y
 0t
 b101011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -118544,7 +118533,6 @@ b1 y
 0t
 b110011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -118732,7 +118720,6 @@ b1 y
 0t
 b111011 v
 0.#
-b10 !"
 b10 &"
 b10 %"
 0/
@@ -118921,7 +118908,7 @@ b10 y
 0t
 b1000011 v
 0.#
-b10 ~
+b0 ~
 b10 !"
 b10 &"
 b10 %"
@@ -119096,7 +119083,6 @@ b10 y
 0$
 b1001010 v
 0.#
-b10 ~
 b10 !"
 b10 &"
 b10 %"
@@ -119273,7 +119259,7 @@ b10 y
 b1010001 v
 0.#
 1+"
-b10 ~
+b1 ~
 b10 !"
 b10 &"
 b10 %"
@@ -142220,7 +142206,7 @@ b10 |
 b1001 v
 0.#
 0+"
-b10 ~
+b0 ~
 b10 !"
 b10 &"
 b10 %"
@@ -142394,7 +142380,6 @@ b10 y
 0$
 b10000 v
 0.#
-b10 ~
 b10 !"
 b10 &"
 b10 %"
@@ -142569,7 +142554,7 @@ b10 y
 b10111 v
 0.#
 1+"
-b10 ~
+b1 ~
 b10 !"
 b10 &"
 b10 %"

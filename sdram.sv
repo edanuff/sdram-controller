@@ -264,12 +264,10 @@ module sdram #(
 
   function automatic [PORT_BITS:0] get_priority_port();
     bit result = 0;
-    bit found = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : priority_loop
+    for (int i = 0; i < NUM_PORTS; i++) begin
       $display("Priority port %d is %b", i, port_req[i] || port_req_queue[i]);
-      if (!found && (port_req[i] || port_req_queue[i])) begin
+      if ((port_req[i] || port_req_queue[i])) begin
         result = i;
-        found = 1;
       $display("Trying to break at port %d check", i);
         break;
       $display("Did not break at port %d check!", i);
@@ -300,7 +298,7 @@ module sdram #(
 
   function bit port_wr_pending();
     port_wr_pending = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : wr_pending_loop
+    for (int i = 0; i < NUM_PORTS; i++) begin 
       if (port_wr_req[i] || port_wr_queue[i]) begin
         port_wr_pending = 1;
         break;
@@ -310,7 +308,7 @@ module sdram #(
 
   function bit port_rd_pending();
     port_rd_pending = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : rd_pending_loop
+    for (int i = 0; i < NUM_PORTS; i++) begin
       if (port_rd_req[i] || port_rd_queue[i]) begin
         port_rd_pending = 1;
         break;

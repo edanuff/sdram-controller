@@ -1,38 +1,38 @@
-INFO: ../sdram.sv:614: Instantiated SDRAM with the following settings
+INFO: ../sdram.sv:612: Instantiated SDRAM with the following settings
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:615:   Clock speed 100.000000, period 10.000000
+INFO: ../sdram.sv:613:   Clock speed 100.000000, period 10.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:621: --------------------
+INFO: ../sdram.sv:619: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:622: Configured values:
+INFO: ../sdram.sv:620: Configured values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:623:   CAS Latency 00000002
+INFO: ../sdram.sv:621:   CAS Latency 00000002
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:629:   Burst length 00000001
+INFO: ../sdram.sv:627:   Burst length 00000001
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:635:   Burst type  Sequential
+INFO: ../sdram.sv:633:   Burst type  Sequential
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:642:   Write burst Single word write
+INFO: ../sdram.sv:640:   Write burst Single word write
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:649: --------------------
+INFO: ../sdram.sv:647: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:650: Port values:
+INFO: ../sdram.sv:648: Port values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:651:   Port 0 burst length           1, port width          32
+INFO: ../sdram.sv:649:   Port 0 burst length           1, port width          32
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:657: --------------------
+INFO: ../sdram.sv:655: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:658: Delays:
+INFO: ../sdram.sv:656: Delays:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:659:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
+INFO: ../sdram.sv:657:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:662:   Cycles between autorefresh instances 1501.000000
+INFO: ../sdram.sv:660:   Cycles between autorefresh instances 1501.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:664:   CYCLES_FOR_AUTOREFRESH 9.000000
+INFO: ../sdram.sv:662:   CYCLES_FOR_AUTOREFRESH 9.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:665:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
+INFO: ../sdram.sv:663:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:667:   Cycles until between active commands 7.000000, command duration 2.000000
+INFO: ../sdram.sv:665:   Cycles until between active commands 7.000000, command duration 2.000000
       Time: 0  Scope: sdram32_tb.sdram
 VCD info: dumpfile sdram32_tb.vcd opened for output.
 Time: 0.0 ns | CMD: 0 SDRAM_DQ: zzzzzzzz SDRAM_A: xxx SDRAM_DQM: xxxx SDRAM_BA: xx SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 0 SDRAM_nCAS: 0 SDRAM_CKE: x
@@ -71,7 +71,6 @@ Time: 101395.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101395.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002020 DIN: 00001234 DOUT: 00000000 READY: 0 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101400.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -100,7 +99,6 @@ Time: 101475.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101475.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002021 DIN: 00005678 DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101480.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -126,7 +124,6 @@ Time: 101555.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101555.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002022 DIN: 00009abc DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101560.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -151,7 +148,6 @@ Time: 101635.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101635.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002023 DIN: 0000def0 DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101640.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -176,7 +172,6 @@ Time: 101715.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101715.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002024 DIN: 0000fedc DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101720.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -201,7 +196,6 @@ Time: 101795.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101795.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002025 DIN: 0000ba98 DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101800.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -226,7 +220,6 @@ Time: 101875.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101875.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002026 DIN: 00007654 DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101880.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -251,7 +244,6 @@ Time: 101955.0 ns | Port 0 CONTROLLER | port_wr_req: 1 port_rd_req: 0 port_wr_qu
 Time: 101955.0 ns | Port 0 | RD: 0 WR: 1 ADDR: 002027 DIN: 00003210 DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 101960.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 0 port_req: 1 port_req_queue: 0
@@ -276,7 +268,6 @@ Time: 102035.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 1 port_wr_qu
 Time: 102035.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002020 DIN: 0000ffff DOUT: 00000000 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 102040.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 1 port_req: 1 port_req_queue: 1
@@ -304,7 +295,6 @@ Time: 102105.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 1 port_wr_qu
 Time: 102105.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002021 DIN: 0000ffff DOUT: 00001234 READY: 1 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 102110.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 1 port_req: 1 port_req_queue: 1
@@ -369,7 +359,6 @@ Time: 116470.0 ns | Port 1 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 000012
 Time: 116470.0 ns | Port 0 | RD: 0 WR: 0 ADDR: 000000 DIN: 0000ffff DOUT: 00005678 READY: 0 AVAIL: 1
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 0
 Priority port identified as 0
 Priority port: 0
 Time: 116480.0 ns | CMD: 3 SDRAM_DQ: zzzzzzzz SDRAM_A: 010 SDRAM_DQM: 0000 SDRAM_BA: 00 SDRAM_nCS: 0 SDRAM_nWE: 1 SDRAM_nRAS: 0 SDRAM_nCAS: 1 SDRAM_CKE: 1
@@ -396,7 +385,6 @@ Time: 116545.0 ns | Port 0 | RD: 1 WR: 0 ADDR: 002023 DIN: 0000ffff DOUT: 00009a
 Time: 116545.0 ns | Port 1 | RD: 1 WR: 0 ADDR: 002024 DIN: 0000ffff DOUT: 00001234 READY: 0 AVAIL: 0
 Priority port           0 is 1
 Trying to break at port           0 check
-Priority port           1 is 1
 Priority port identified as 0
 Priority port: 0
 Time: 116550.0 ns | Port 0 CONTROLLER | port_wr_req: 0 port_rd_req: 0 port_wr_queue: 0 port_rd_queue: 1 port_req: 1 port_req_queue: 1
