@@ -265,15 +265,12 @@ module sdram #(
   function automatic [PORT_BITS:0] get_priority_port();
     bit result = 0;
     for (int i = 0; i < NUM_PORTS; i++) begin
-      $display("Priority port %d is %b", i, port_req[i] || port_req_queue[i]);
       if ((port_req[i] || port_req_queue[i])) begin
         result = i;
-      $display("Trying to break at port %d check", i);
         break;
-      $display("Did not break at port %d check!", i);
       end
     end
-      $display("Priority port identified as %b", result);
+    $display("Priority port identified as %b", result);
     return result;
   endfunction
 
