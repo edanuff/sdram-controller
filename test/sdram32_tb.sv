@@ -13,7 +13,7 @@ module sdram32_tb;
 
   wire init_complete;
 
-  parameter NUM_PORTS = 1;
+  parameter NUM_PORTS = 2;
   parameter PORT_ADDR_WIDTH = 21;
   parameter DATA_WIDTH = 32;
   parameter DQM_WIDTH = 4;
@@ -52,6 +52,28 @@ module sdram32_tb;
   assign p0_available = port_available[0];
   assign p0_ready = port_ready[0];
 
+  reg [20:0] p1_addr = 0;
+  reg [31:0] p1_data = 0;
+  reg [3:0] p1_byte_en = 0;
+  wire [31:0] p1_q;
+
+  reg p1_wr_req = 0;
+  reg p1_rd_req = 0;
+
+  wire p1_available;
+  wire p1_ready;
+
+  assign port_addr[1] = p1_addr;
+  assign port_data[1] = p1_data;
+  assign port_byte_en[1] = p1_byte_en;
+  assign p1_q = port_q[1];
+
+  assign port_wr[1] = p1_wr_req;
+  assign port_rd[1] = p1_rd_req;
+
+  assign p1_available = port_available[1];
+  assign p1_ready = port_ready[1];
+
   always begin
     #5 clk <= ~clk;
   end
@@ -84,7 +106,7 @@ module sdram32_tb;
 
   sdram #(
       .CLOCK_SPEED_MHZ(100),
-      .NUM_PORTS(1),
+      .NUM_PORTS(NUM_PORTS),
       .PORT_ADDR_WIDTH(PORT_ADDR_WIDTH),
       .PORT_OUTPUT_WIDTH(PORT_OUTPUT_WIDTH),
       .CAS_LATENCY(2),
@@ -131,10 +153,18 @@ module sdram32_tb;
         $display("Time: %0t | Port 0 | RD: %b WR: %b ADDR: %h DIN: %h DOUT: %h READY: %b AVAIL: %b", $time, p0_rd_req, p0_wr_req, p0_addr, p0_data, p0_q, p0_ready, p0_available);
     end
     
+    always @(p1_rd_req, p1_wr_req, p1_addr, p1_data, p1_q, p1_ready, p1_available) begin
+        $display("Time: %0t | Port 1 | RD: %b WR: %b ADDR: %h DIN: %h DOUT: %h READY: %b AVAIL: %b", $time, p1_rd_req, p1_wr_req, p1_addr, p1_data, p1_q, p1_ready, p1_available);
+    end
+
     always @(sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke) begin
         $display("Time: %0t | CMD: %h SDRAM_DQ: %h SDRAM_A: %h SDRAM_DQM: %b SDRAM_BA: %b SDRAM_nCS: %b SDRAM_nWE: %b SDRAM_nRAS: %b SDRAM_nCAS: %b SDRAM_CKE: %b", $time, sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke);
     end
-    
+
+    always @(sdram.port_wr_req[0], sdram.port_rd_req[0], sdram.port_wr_queue[0], sdram.port_rd_queue[0], sdram.port_req[0], sdram.port_req_queue[0]) begin
+        $display("Time: %0t | Port 0 CONTROLLER | port_wr_req: %b port_rd_req: %b port_wr_queue: %b port_rd_queue: %b port_req: %b port_req_queue: %b", $time, sdram.port_wr_req[0], sdram.port_rd_req[0], sdram.port_wr_queue[0], sdram.port_rd_queue[0], sdram.port_req[0], sdram.port_req_queue[0]);
+    end
+
     /*
     wire rdq = sdram.port_rd_queue[0];
     wire wrq = sdram.port_wr_queue[0];
@@ -160,6 +190,7 @@ module sdram32_tb;
     wait (clk==0);
 
 
+    $display("---------------------------------------------");
     $display("Write 1 at %t", $time());
     p0_addr = 21'h00_2020;
     p0_data = 32'h1234;
@@ -169,17 +200,20 @@ module sdram32_tb;
     $display("Write 1a");
 
     #20;
+    $display("---------------------------------------------");
     $display("Write 1b");
     p0_addr = 0;
     p0_data = 0;
     #20;
     p0_wr_req = 0;
+    $display("---------------------------------------------");
     $display("Write 1c");
 
     //@(posedge clk iff p0_ready);
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 2 at %t", $time());
     p0_addr   = 21'h00_2021;
     p0_data   = 32'h5678;
@@ -196,6 +230,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 3 at %t", $time());
     p0_addr   = 21'h00_2022;
     p0_data   = 32'h9ABC;
@@ -211,6 +246,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 4 at %t", $time());
     p0_addr   = 21'h00_2023;
     p0_data   = 32'hDEF0;
@@ -226,6 +262,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 5 at %t", $time());
     p0_addr   = 21'h00_2024;
     p0_data   = 32'hFEDC;
@@ -241,6 +278,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 6 at %t", $time());
     p0_addr   = 21'h00_2025;
     p0_data   = 32'hBA98;
@@ -256,6 +294,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 7 at %t", $time());
     p0_addr   = 21'h00_2026;
     p0_data   = 32'h7654;
@@ -271,6 +310,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Write 8 at %t", $time());
     p0_addr   = 21'h00_2027;
     p0_data   = 32'h3210;
@@ -287,6 +327,7 @@ module sdram32_tb;
     #5;
 
     // Read
+    $display("---------------------------------------------");
     $display("Read 1 at %t", $time());
     p0_addr = 21'h00_2020;
     p0_data = 32'hFFFF;
@@ -302,6 +343,7 @@ module sdram32_tb;
     wait(p0_ready);
     #5;
 
+    $display("---------------------------------------------");
     $display("Read 2 at %t", $time());
     p0_addr = 21'h00_2021;
     p0_data = 32'hFFFF;
@@ -314,13 +356,36 @@ module sdram32_tb;
     p0_rd_req = 0;
 
     wait(p0_ready);
-
-    wait(sdram.refresh_counter == 751);
     #5;
+
+    // Read
+    $display("---------------------------------------------");
+    $display("Read 3, p1 at %t", $time());
+    p1_addr = 21'h00_2020;
+    p1_data = 32'hFFFF;
+
+    p1_byte_en = 2'h2;
+    p1_rd_req = 1;
+
+    #20;
+    p1_addr   = 0;
+    p1_rd_req = 0;
+
+    //@(posedge clk iff p0_ready);
+    wait(p1_ready);
+    #5;
+
+    $display("---------------------------------------------");
+    $display("wait for refresh at %t", $time());
+
+    wait(sdram.refresh_counter == 1501);
     $display("refresh 1 at %t", $time());
+    #5;
 
      //wait(p0_available | p0_ready);
 
+    $display("---------------------------------------------");
+    $display("Read 4, p0 at %t", $time());
     p0_addr = 21'h00_2022;
     p0_data = 32'hFFFF;
 
@@ -331,7 +396,30 @@ module sdram32_tb;
     p0_addr   = 0;
     p0_rd_req = 0;
 
-    #1000;
+    wait(p0_ready);
+    #5;
+
+    $display("---------------------------------------------");
+    $display("Read 5, p1&p2 at %t", $time());
+    p0_addr = 21'h00_2023;
+    p0_data = 32'hFFFF;
+    p0_rd_req = 1;
+
+    p1_addr = 21'h00_2024;
+    p1_data = 32'hFFFF;
+    p1_rd_req = 1;
+
+    #10;
+    p0_addr   = 0;
+    p0_rd_req = 0;
+
+    p1_addr   = 0;
+    p1_rd_req = 0;
+    
+    wait(p0_ready);
+    #5;
+    
+    #15000;
 
     $finish;
   end

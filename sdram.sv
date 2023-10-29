@@ -234,9 +234,9 @@ module sdram #(
   // Cache the signals we received, potentially while busy
   reg port_wr_queue[NUM_PORTS-1:0];
   reg port_rd_queue[NUM_PORTS-1:0];
-  reg [DQM_WIDTH-1:0] port_byte_en_queue[NUM_PORTS-1:0] = '{'0};
-  reg [PORT_ADDR_WIDTH-1:0] port_addr_queue[NUM_PORTS-1:0] = '{'0};
-  reg [DATA_WIDTH-1:0] port_data_queue[NUM_PORTS-1:0] = '{'0};
+  reg [DQM_WIDTH-1:0] port_byte_en_queue[NUM_PORTS-1:0];
+  reg [PORT_ADDR_WIDTH-1:0] port_addr_queue[NUM_PORTS-1:0];
+  reg [DATA_WIDTH-1:0] port_data_queue[NUM_PORTS-1:0];
 
   wire port_req[NUM_PORTS-1:0];
   wire port_req_queue[NUM_PORTS-1:0];
@@ -261,8 +261,28 @@ module sdram #(
   ////////////////////////////////////////////////////////////////////////////////////////
   // Helpers
 
+
+  function automatic [PORT_BITS:0] get_priority_port();
+    bit result = 0;
+    bit found = 0;
+    for (int i = 0; i < NUM_PORTS; i++) begin : priority_loop
+      $display("Priority port %d is %b", i, port_req[i] || port_req_queue[i]);
+      if (!found && (port_req[i] || port_req_queue[i])) begin
+        result = i;
+        found = 1;
+      $display("Trying to break at port %d check", i);
+        break;
+      $display("Did not break at port %d check!", i);
+      end
+    end
+      $display("Priority port identified as %b", result);
+    return result;
+  endfunction
+
   // Activates a row
-  task set_active_command(reg [PORT_BITS:0] port);
+  task set_active_command(input [PORT_BITS:0] port);
+    $display("Priority port: %d", port);
+
     sdram_command <= COMMAND_ACTIVE;
 
     // Upper two bits choose the bank
@@ -278,19 +298,9 @@ module sdram #(
     port_wr_queue[port] <= 0;
   endtask
 
-  function [PORT_BITS:0] get_priority_port();
-    get_priority_port = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : priority_loop
-      if (port_req_queue[i]) begin
-        get_priority_port = i;
-        break;
-      end
-    end
-  endfunction
-
   function bit port_wr_pending();
     port_wr_pending = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : pending_loop
+    for (int i = 0; i < NUM_PORTS; i++) begin : wr_pending_loop
       if (port_wr_req[i] || port_wr_queue[i]) begin
         port_wr_pending = 1;
         break;
@@ -300,7 +310,7 @@ module sdram #(
 
   function bit port_rd_pending();
     port_rd_pending = 0;
-    for (int i = 0; i < NUM_PORTS; i++) begin : pending_loop
+    for (int i = 0; i < NUM_PORTS; i++) begin : rd_pending_loop
       if (port_rd_req[i] || port_rd_queue[i]) begin
         port_rd_pending = 1;
         break;
