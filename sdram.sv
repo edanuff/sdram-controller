@@ -248,7 +248,7 @@ module sdram #(
       assign port_wr_req[i] = port_wr[i] && !port_wr_prev[i];
       assign port_rd_req[i] = port_rd[i] && !port_rd_prev[i];
 
-      assign port_req[i] = port_wr[i] || port_rd[i];
+      assign port_req[i] = port_wr_req[i] || port_rd_req[i];
       assign port_req_queue[i] = port_wr_queue[i] || port_rd_queue[i];
       // The current p0 address that should be used for any operations on this first cycle only
       assign port_addr_current[i] = port_req_queue[i] ? port_addr_queue[i] : port_addr[i];

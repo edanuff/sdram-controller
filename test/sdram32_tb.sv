@@ -116,7 +116,7 @@ module sdram32_tb;
       .PORT_BURST_LENGTH(1),
       .DATA_WIDTH(DATA_WIDTH),
       .ROW_WIDTH(11),
-      .COL_WIDTH(9),
+      .COL_WIDTH(8),
       .PRECHARGE_BIT(10),
       .DQM_WIDTH(DQM_WIDTH)
   ) sdram (
@@ -163,6 +163,10 @@ module sdram32_tb;
 
     always @(sdram.port_wr_req[0], sdram.port_rd_req[0], sdram.port_wr_queue[0], sdram.port_rd_queue[0], sdram.port_req[0], sdram.port_req_queue[0]) begin
         $display("Time: %0t | Port 0 CONTROLLER | port_wr_req: %b port_rd_req: %b port_wr_queue: %b port_rd_queue: %b port_req: %b port_req_queue: %b", $time, sdram.port_wr_req[0], sdram.port_rd_req[0], sdram.port_wr_queue[0], sdram.port_rd_queue[0], sdram.port_req[0], sdram.port_req_queue[0]);
+    end
+
+    always @(sdram.port_wr_req[1], sdram.port_rd_req[1], sdram.port_wr_queue[1], sdram.port_rd_queue[1], sdram.port_req[1], sdram.port_req_queue[1]) begin
+        $display("Time: %0t | Port 1 CONTROLLER | port_wr_req: %b port_rd_req: %b port_wr_queue: %b port_rd_queue: %b port_req: %b port_req_queue: %b", $time, sdram.port_wr_req[1], sdram.port_rd_req[1], sdram.port_wr_queue[1], sdram.port_rd_queue[1], sdram.port_req[1], sdram.port_req_queue[1]);
     end
 
     /*
@@ -409,14 +413,14 @@ module sdram32_tb;
     p1_data = 32'hFFFF;
     p1_rd_req = 1;
 
-    #10;
+    #100;
     p0_addr   = 0;
     p0_rd_req = 0;
 
     p1_addr   = 0;
     p1_rd_req = 0;
     
-    wait(p0_ready);
+    wait(p0_available);
     #5;
     
     #15000;
