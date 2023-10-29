@@ -1,38 +1,38 @@
-INFO: ../sdram.sv:609: Instantiated SDRAM with the following settings
+INFO: ../sdram.sv:610: Instantiated SDRAM with the following settings
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:610:   Clock speed 100.000000, period 10.000000
+INFO: ../sdram.sv:611:   Clock speed 100.000000, period 10.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:616: --------------------
+INFO: ../sdram.sv:617: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:617: Configured values:
+INFO: ../sdram.sv:618: Configured values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:618:   CAS Latency 00000002
+INFO: ../sdram.sv:619:   CAS Latency 00000002
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:624:   Burst length 00000001
+INFO: ../sdram.sv:625:   Burst length 00000001
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:630:   Burst type  Sequential
+INFO: ../sdram.sv:631:   Burst type  Sequential
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:637:   Write burst Single word write
+INFO: ../sdram.sv:638:   Write burst Single word write
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:644: --------------------
+INFO: ../sdram.sv:645: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:645: Port values:
+INFO: ../sdram.sv:646: Port values:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:646:   Port 0 burst length           1, port width          32
+INFO: ../sdram.sv:647:   Port 0 burst length           1, port width          32
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:652: --------------------
+INFO: ../sdram.sv:653: --------------------
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:653: Delays:
+INFO: ../sdram.sv:654: Delays:
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:654:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
+INFO: ../sdram.sv:655:   Cycles until start inhibit 5001.000000, clear inhibit 10101.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:657:   Cycles between autorefresh instances 1501.000000
+INFO: ../sdram.sv:658:   Cycles between autorefresh instances 1501.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:659:   CYCLES_FOR_AUTOREFRESH 9.000000
+INFO: ../sdram.sv:660:   CYCLES_FOR_AUTOREFRESH 9.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:660:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
+INFO: ../sdram.sv:661:   CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND 4.000000
       Time: 0  Scope: sdram32_tb.sdram
-INFO: ../sdram.sv:662:   Cycles until between active commands 7.000000, command duration 2.000000
+INFO: ../sdram.sv:663:   Cycles until between active commands 7.000000, command duration 2.000000
       Time: 0  Scope: sdram32_tb.sdram
 VCD info: dumpfile sdram32_tb.vcd opened for output.
 Time: 0.0 ns | CMD: 0 SDRAM_DQ: zzzzzzzz SDRAM_A: xxx SDRAM_DQM: xxxx SDRAM_BA: xx SDRAM_nCS: 0 SDRAM_nWE: 0 SDRAM_nRAS: 0 SDRAM_nCAS: 0 SDRAM_CKE: x

@@ -1,5 +1,5 @@
 $date
-	Sun Oct 29 15:05:29 2023
+	Sun Oct 29 15:43:42 2023
 $end
 $version
 	Icarus Verilog
@@ -150,7 +150,7 @@ $var reg 44 (" active_port_entries [43:0] $end
 $upscope $end
 $scope begin $unm_blk_34 $end
 $var reg 4 )" expected_count [3:0] $end
-$var reg 32 *" temp [31:0] $end
+$var reg 256 *" temp [255:0] $end
 $upscope $end
 $scope task set_active_command $end
 $var reg 1 +" port $end
@@ -119055,6 +119055,7 @@ b1001010 q"
 b1 |
 b1001001 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000000001001000110100 *"
 b10 %"
 0/
 0G
@@ -119227,6 +119228,7 @@ b1010001 q"
 b1 |
 b1010000 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000000101011001111000 *"
 b10 %"
 0/
 0G
@@ -119405,6 +119407,7 @@ b1011000 q"
 b1 |
 b1010111 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000000001001000110100 *"
 b10 %"
 0/
 0G
@@ -142350,6 +142353,7 @@ b10111101110 q"
 b1 |
 b1111 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000001001101010111100 *"
 b10 %"
 0/
 0G
@@ -142522,6 +142526,7 @@ b10111110101 q"
 b1 |
 b10110 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000001101111011110000 *"
 b10 %"
 0/
 0G
@@ -142697,6 +142702,7 @@ b10111111100 q"
 b1 |
 b11101 v
 0.#
+b0zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz00000000000000001111111011011100 *"
 b10 %"
 0/
 0G

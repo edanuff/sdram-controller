@@ -534,12 +534,13 @@ module sdram #(
           SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
 
           // Fetch all bytes
-          SDRAM_DQM <= 2'b0;
+          SDRAM_DQM <= 0;
         end
         READ_OUTPUT: begin
-          reg [PORT_OUTPUT_WIDTH-1:0] temp;
+          reg [(8*DATA_WIDTH)-1:0] temp;
           reg [  3:0] expected_count;
 
+          temp = 0;
           temp[PORT_OUTPUT_WIDTH-1:0] = port_q[active_port];
 
           expected_count = PORT_BURST_LENGTH;
