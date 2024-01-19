@@ -18,8 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+`define TESTBENCH
+
 function integer rtoi(input integer x);
-  return x;
+    return x;
 endfunction
 
 `define CEIL(x) ((rtoi(x) > x) ? rtoi(x) : rtoi(x) + 1)
@@ -28,19 +30,24 @@ module sdram #(
     parameter CLOCK_SPEED_MHZ = 0,
 
     parameter BURST_LENGTH = 1,  // 1, 2, 4, 8 words per read
-    parameter BURST_TYPE = 0,  // 1 for interleaved
-    parameter WRITE_BURST = 0,  // 1 to enable write bursting
+    parameter BURST_TYPE   = 0,  // 1 for interleaved
+    parameter WRITE_BURST  = 0,  // 1 to enable write bursting
 
     parameter CAS_LATENCY = 2,  // 1, 2, or 3 cycle delays
 
     parameter DATA_WIDTH = 16,
     parameter ROW_WIDTH = 13,  // 2K rows
-    parameter COL_WIDTH = 10,   // 256 words per row (1Kbytes)
-    parameter PRECHARGE_BIT = 10, // Default to A10 for precharge
+    parameter COL_WIDTH = 10,  // 256 words per row (1Kbytes)
+    parameter PRECHARGE_BIT = 10,  // Default to A10 for precharge
     parameter BANK_WIDTH = 2,  // 4 banks
     parameter DQM_WIDTH = 2,  // 2 bytes
 
+    parameter PORT_ADDR_WIDTH = 25,
+    parameter PORT_BURST_LENGTH = BURST_LENGTH,  // 1, 2, 4, 8 words per read
+    parameter PORT_OUTPUT_WIDTH = PORT_BURST_LENGTH * DATA_WIDTH,
+
     // SDRAM Config values
+    //
     parameter SETTING_INHIBIT_DELAY_MICRO_SEC = 100,
 
     // tCK - Min clock cycle time
@@ -76,424 +83,419 @@ module sdram #(
     // Reads will be delayed by 1 cycle when enabled
     // Highly recommended that you use with SDRAM with FAST_INPUT_REGISTER enabled for timing and stability
     // This makes read timing incompatible with the test model
-    parameter SETTING_USE_FAST_INPUT_REGISTER = 1,
+    parameter SETTING_USE_FAST_INPUT_REGISTER = 1
 
-    // Port config
-
-    parameter PORT_ADDR_WIDTH = 25,
-    parameter P0_BURST_LENGTH = BURST_LENGTH,  // 1, 2, 4, 8 words per read
-    parameter P0_OUTPUT_WIDTH = P0_BURST_LENGTH * DATA_WIDTH
 ) (
     input wire clk,
     input wire sdram_clk,
     input wire reset,  // Used to trigger start of FSM
     output wire init_complete,  // SDRAM is done initializing
 
-    // Port 0
-    input wire [PORT_ADDR_WIDTH-1:0] p0_addr,
-    input wire [DATA_WIDTH-1:0] p0_data,
-    input wire [DQM_WIDTH-1:0] p0_byte_en,  // Byte enable for writes
-    output reg [P0_OUTPUT_WIDTH-1:0] p0_q,
+    // Port
+    input wire [PORT_ADDR_WIDTH-1:0] port_addr,
+    input wire [DATA_WIDTH-1:0] port_data,
+    input wire [DQM_WIDTH-1:0] port_byte_en,  // Byte enable for writes
+    output reg [PORT_OUTPUT_WIDTH-1:0] port_q,
 
-    input wire p0_wr_req,
-    input wire p0_rd_req,
+    input wire port_wr,
+    input wire port_rd,
 
-    output wire p0_available,  // The port is able to be used
-    output reg  p0_ready = 0,  // The port has finished its task. Will rise for a single cycle
+    output wire port_available,  // The port is able to be used
+    output reg port_ready,  // The port has finished its task. Will rise for a single cycle
 
     inout  wire [DATA_WIDTH-1:0] SDRAM_DQ,    // Bidirectional data bus
-    output reg  [ROW_WIDTH-1:0] SDRAM_A,     // Address bus
-    output reg  [DQM_WIDTH-1:0] SDRAM_DQM,   // High/low byte mask
+    output reg  [ ROW_WIDTH-1:0] SDRAM_A,     // Address bus
+    output reg  [ DQM_WIDTH-1:0] SDRAM_DQM,   // High/low byte mask
     output reg  [BANK_WIDTH-1:0] SDRAM_BA,    // Bank select (single bits)
-    output wire        SDRAM_nCS,   // Chip select, neg triggered
-    output wire        SDRAM_nWE,   // Write enable, neg triggered
-    output wire        SDRAM_nRAS,  // Select row address, neg triggered
-    output wire        SDRAM_nCAS,  // Select column address, neg triggered
-    output reg         SDRAM_CKE,   // Clock enable
-    output wire        SDRAM_CLK    // Chip clock
+    output wire                  SDRAM_nCS,   // Chip select, neg triggered
+    output wire                  SDRAM_nWE,   // Write enable, neg triggered
+    output wire                  SDRAM_nRAS,  // Select row address, neg triggered
+    output wire                  SDRAM_nCAS,  // Select column address, neg triggered
+    output reg                   SDRAM_CKE,   // Clock enable
+    output wire                  SDRAM_CLK    // Chip clock
 );
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Generated parameters
 
-  localparam CLOCK_PERIOD_NANO_SEC = 1000.0 / CLOCK_SPEED_MHZ;
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Generated parameters
 
-  // Number of cycles after reset until we start command inhibit
-  localparam CYCLES_UNTIL_START_INHIBIT =
-  `CEIL(SETTING_INHIBIT_DELAY_MICRO_SEC * 500 / CLOCK_PERIOD_NANO_SEC);
-  // Number of cycles after reset until we clear command inhibit and start operation
-  // We add 100 cycles for good measure
-  localparam CYCLES_UNTIL_CLEAR_INHIBIT = 100 +
-  `CEIL(SETTING_INHIBIT_DELAY_MICRO_SEC * 1000 / CLOCK_PERIOD_NANO_SEC);
+    localparam CLOCK_PERIOD_NANO_SEC = 1000.0 / CLOCK_SPEED_MHZ;
 
-  // Number of cycles for precharge duration
-  // localparam CYCLES_FOR_PRECHARGE =
-  // `CEIL(SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles after reset until we start command inhibit
+    localparam CYCLES_UNTIL_START_INHIBIT =
+    `CEIL(SETTING_INHIBIT_DELAY_MICRO_SEC * 500 / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles after reset until we clear command inhibit and start operation
+    // We add 100 cycles for good measure
+    localparam CYCLES_UNTIL_CLEAR_INHIBIT = 100 +
+    `CEIL(SETTING_INHIBIT_DELAY_MICRO_SEC * 1000 / CLOCK_PERIOD_NANO_SEC);
 
-  // Number of cycles for autorefresh duration
-  localparam CYCLES_FOR_AUTOREFRESH =
-  `CEIL(SETTING_T_RFC_MIN_AUTOREFRESH_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles for precharge duration
+    // localparam CYCLES_FOR_PRECHARGE =
+    // `CEIL(SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  // Number of cycles between two active commands to the same bank
-  // TODO: Use this value
-  localparam CYCLES_BETWEEN_ACTIVE_COMMAND =
-  `CEIL(SETTING_T_RC_MIN_ACTIVE_TO_ACTIVE_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles for autorefresh duration
+    localparam CYCLES_FOR_AUTOREFRESH =
+    `CEIL(SETTING_T_RFC_MIN_AUTOREFRESH_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  // Number of cycles after active command before a read/write can be executed
-  localparam CYCLES_FOR_ACTIVE_ROW =
-  `CEIL(SETTING_T_RCD_MIN_READ_WRITE_DELAY_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles between two active commands to the same bank
+    // TODO: Use this value
+    localparam CYCLES_BETWEEN_ACTIVE_COMMAND =
+    `CEIL(SETTING_T_RC_MIN_ACTIVE_TO_ACTIVE_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  // Number of cycles after write before next command
-  localparam CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND =
-  `CEIL(
-      (SETTING_T_WR_MIN_WRITE_AUTO_PRECHARGE_RECOVERY_NANO_SEC + SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC) / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles after active command before a read/write can be executed
+    localparam CYCLES_FOR_ACTIVE_ROW =
+    `CEIL(SETTING_T_RCD_MIN_READ_WRITE_DELAY_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  // Number of cycles between each autorefresh command
-  localparam CYCLES_PER_REFRESH =
-  `CEIL(SETTING_REFRESH_TIMER_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles after write before next command
+    localparam CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND =
+    `CEIL(
+        (SETTING_T_WR_MIN_WRITE_AUTO_PRECHARGE_RECOVERY_NANO_SEC + SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC) / CLOCK_PERIOD_NANO_SEC);
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Init helpers
-  // Number of cycles after reset until we are done with precharge
-  // We add 10 cycles for good measure
-  localparam CYCLES_UNTIL_INIT_PRECHARGE_END = 10 + CYCLES_UNTIL_CLEAR_INHIBIT +
-  `CEIL(SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
+    // Number of cycles between each autorefresh command
+    localparam CYCLES_PER_REFRESH = `CEIL(SETTING_REFRESH_TIMER_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  localparam CYCLES_UNTIL_REFRESH1_END = CYCLES_UNTIL_INIT_PRECHARGE_END + CYCLES_FOR_AUTOREFRESH;
-  localparam CYCLES_UNTIL_REFRESH2_END = CYCLES_UNTIL_REFRESH1_END + CYCLES_FOR_AUTOREFRESH;
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Init helpers
+    // Number of cycles after reset until we are done with precharge
+    // We add 10 cycles for good measure
+    localparam CYCLES_UNTIL_INIT_PRECHARGE_END = 10 + CYCLES_UNTIL_CLEAR_INHIBIT +
+    `CEIL(SETTING_T_RP_MIN_PRECHARGE_CMD_PERIOD_NANO_SEC / CLOCK_PERIOD_NANO_SEC);
 
-  wire [2:0] concrete_burst_length = BURST_LENGTH == 1 ? 3'h0 : BURST_LENGTH == 2 ? 3'h1 : BURST_LENGTH == 4 ? 3'h2 : 3'h3;
-  // Reserved, write burst, operating mode, CAS latency, burst type, burst length
-  wire [12:0] configured_mode = {
-    3'b0, ~WRITE_BURST[0], 2'b0, CAS_LATENCY[2:0], BURST_TYPE[0], concrete_burst_length
-  };
+    localparam CYCLES_UNTIL_REFRESH1_END = CYCLES_UNTIL_INIT_PRECHARGE_END + CYCLES_FOR_AUTOREFRESH;
+    localparam CYCLES_UNTIL_REFRESH2_END = CYCLES_UNTIL_REFRESH1_END + CYCLES_FOR_AUTOREFRESH;
 
-  typedef struct packed {
-    reg [COL_WIDTH-1:0]  port_addr;
-    reg [DATA_WIDTH-1:0] port_data;
-    reg [DQM_WIDTH-1:0]  port_byte_en;
-  } port_selection;
+    wire [2:0] concrete_burst_length = BURST_LENGTH == 1 ? 3'h0 : BURST_LENGTH == 2 ? 3'h1 : BURST_LENGTH == 4 ? 3'h2 : 3'h3;
+    // Reserved, write burst, operating mode, CAS latency, burst type, burst length
+    wire [12:0] configured_mode = {
+        3'b0, ~WRITE_BURST[0], 2'b0, CAS_LATENCY[2:0], BURST_TYPE[0], concrete_burst_length
+    };
 
-  // nCS, nRAS, nCAS, nWE
-  typedef enum bit [3:0] {
-    COMMAND_NOP           = 4'b0111,
-    COMMAND_ACTIVE        = 4'b0011,
-    COMMAND_READ          = 4'b0101,
-    COMMAND_WRITE         = 4'b0100,
-    COMMAND_PRECHARGE     = 4'b0010,
-    COMMAND_AUTO_REFRESH  = 4'b0001,
-    COMMAND_LOAD_MODE_REG = 4'b0000
-  } command;
+    typedef struct packed {
+        reg [COL_WIDTH-1:0]  port_addr;
+        reg [DATA_WIDTH-1:0] port_data;
+        reg [DQM_WIDTH-1:0]  port_byte_en;
+    } port_selection;
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // State machine
+    // nCS, nRAS, nCAS, nWE
+    typedef enum bit [3:0] {
+        COMMAND_NOP           = 4'b0111,
+        COMMAND_ACTIVE        = 4'b0011,
+        COMMAND_READ          = 4'b0101,
+        COMMAND_WRITE         = 4'b0100,
+        COMMAND_PRECHARGE     = 4'b0010,
+        COMMAND_AUTO_REFRESH  = 4'b0001,
+        COMMAND_LOAD_MODE_REG = 4'b0000
+    } command;
 
-  typedef enum bit [2:0] {
-    INIT,
-    IDLE,
-    DELAY,
-    WRITE,
-    READ,
-    READ_OUTPUT
-  } state_fsm;
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // State machine
 
-  state_fsm state;
+    typedef enum bit [2:0] {
+        INIT,
+        IDLE,
+        DELAY,
+        WRITE,
+        READ,
+        READ_OUTPUT
+    } state_fsm;
 
-  // TODO: Could use fewer bits
-  reg [31:0] delay_counter = 0;
-  // The number of words we're reading
-  reg [3:0] read_counter = 0;
+    state_fsm state;
 
-  // Measures when auto refresh needs to be triggered
-  reg [15:0] refresh_counter = 0;
+    // TODO: Could use fewer bits
+    reg [31:0] delay_counter = 0;
+    // The number of words we're reading
+    reg [3:0] read_counter = 0;
 
-  reg [1:0] active_port = 0;
+    // Measures when auto refresh needs to be triggered
+    reg [15:0] refresh_counter = 0;
 
-  state_fsm delay_state;
+    state_fsm delay_state;
 
-  typedef enum bit [1:0] {
-    IO_NONE,
-    IO_WRITE,
-    IO_READ
-  } io_operation;
+    typedef enum bit [1:0] {
+        IO_NONE,
+        IO_WRITE,
+        IO_READ
+    } io_operation;
 
-  io_operation current_io_operation;
+    `ifdef TESTBENCH
+    reg [DATA_WIDTH-1:0] sdram_dq_reg;
+    always @(posedge sdram_clk) sdram_dq_reg <= SDRAM_DQ;
+    `endif
 
-  command sdram_command;
-  assign {SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE} = sdram_command;
+    io_operation current_io_operation;
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Port specifics
+    command sdram_command;
+    assign {SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE} = sdram_command;
 
-  reg p0_wr_prev = 0;
-  wire p0_wr_start = p0_wr_req && !p0_wr_prev;
-  reg p0_rd_prev = 0;
-  wire p0_rd_start = p0_rd_req && !p0_rd_prev;
-  // Cache the signals we received, potentially while busy
-  reg p0_wr_queue = 0;
-  reg p0_rd_queue = 0;
-  reg [DQM_WIDTH-1:0] p0_byte_en_queue = 0;
-  reg [PORT_ADDR_WIDTH-1:0] p0_addr_queue = 0;
-  reg [DATA_WIDTH-1:0] p0_data_queue = 0;
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Port specifics
 
-  wire p0_req = p0_wr_req || p0_rd_req;
-  wire p0_req_queue = p0_wr_queue || p0_rd_queue;
-  // The current p0 address that should be used for any operations on this first cycle only
-  wire [PORT_ADDR_WIDTH-1:0] p0_addr_current = p0_req_queue ? p0_addr_queue : p0_addr;
+    // Cache the signals we received, potentially while busy
+    reg port_wr_queue;
+    reg port_rd_queue;
+    reg [DQM_WIDTH-1:0] port_byte_en_queue;
+    reg [PORT_ADDR_WIDTH-1:0] port_addr_queue;
+    reg [DATA_WIDTH-1:0] port_data_queue;
 
-  // An active new request or cached request
-  wire port_req = p0_req || p0_req_queue;
+    reg port_wr_prev;
+    reg port_rd_prev;
+    wire port_wr_req = port_wr && !port_wr_prev;
+    wire port_rd_req = port_rd && !port_rd_prev;
+    wire port_req = port_wr_req || port_rd_req;
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Helpers
+    wire port_queue = port_wr_queue || port_rd_queue;
+    // The current port address that should be used for any operations on this first cycle only
+    wire [PORT_ADDR_WIDTH-1:0] port_addr_current = port_queue ? port_addr_queue : port_addr;
 
-  // Activates a row
-  task set_active_command(reg [1:0] port, reg [PORT_ADDR_WIDTH-1:0] addr);
-    sdram_command <= COMMAND_ACTIVE;
+    // An active new request or cached request
+    wire port_current_req = port_req || port_queue;
 
-    // Upper two bits choose the bank
-    SDRAM_BA <= addr[PORT_ADDR_WIDTH-1:PORT_ADDR_WIDTH-2];
 
-    // Row address
-    SDRAM_A <= addr[PORT_ADDR_WIDTH-3:COL_WIDTH];
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Helpers
 
-    active_port <= port;
-    // Current construction takes two cycles to write next data
-    delay_counter <= CYCLES_FOR_ACTIVE_ROW > 32'h2 ? CYCLES_FOR_ACTIVE_ROW - 32'h2 : 32'h0;
-  endtask
+    // Activates a row
+    task set_active_command();
+        sdram_command <= COMMAND_ACTIVE;
 
-  function port_selection get_active_port();
-    port_selection selection;
+        // Upper two bits choose the bank
+        SDRAM_BA <= port_addr_current[PORT_ADDR_WIDTH-1:PORT_ADDR_WIDTH-2];
 
-    selection.port_addr = '0;
-    selection.port_data ='0;
-    selection.port_byte_en = '0;
+        // Row address
+        SDRAM_A <= port_addr_current[PORT_ADDR_WIDTH-3:COL_WIDTH];
 
-    case (active_port)
-      0: begin
-        selection.port_addr = p0_addr_queue[COL_WIDTH-1:0];
-        selection.port_data = p0_data_queue;
-        selection.port_byte_en = p0_byte_en_queue;
-      end
-    endcase
+        // Current construction takes two cycles to write next data
+        delay_counter <= CYCLES_FOR_ACTIVE_ROW > 32'h2 ? CYCLES_FOR_ACTIVE_ROW - 32'h2 : 32'h0;
 
-    return selection;
-  endfunction
+        port_wr_queue <= 0;
+    endtask
 
-  reg dq_output = 0;
+    function port_selection get_active_port();
+        port_selection selection;
 
-  reg [DATA_WIDTH-1:0] sdram_data = 0;
-  assign SDRAM_DQ = dq_output ? sdram_data : 'Z;
+        selection.port_addr = port_addr_queue[COL_WIDTH-1:0];
+        selection.port_data = port_data_queue;
+        selection.port_byte_en = port_byte_en_queue;
 
-  assign init_complete = state != INIT;
+        return selection;
+    endfunction
 
-  assign p0_available = state == IDLE && ~port_req;
+    reg dq_output = 0;
 
-  reg [DATA_WIDTH-1:0] sdram_dq_reg;
-  always @(posedge sdram_clk) sdram_dq_reg <= SDRAM_DQ;
-  
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Process
+    reg [DATA_WIDTH-1:0] sdram_data = 0;
+    assign SDRAM_DQ = dq_output ? sdram_data : 'Z;
 
-  always @(posedge clk) begin
-    if (reset) begin
-      // 2. Assert and hold CKE at logic low
-      SDRAM_CKE <= 0;
+    assign init_complete = state != INIT;
 
-      delay_counter <= 0;
+    assign port_available = state == IDLE && ~port_queue;
 
-      delay_state <= IDLE;
-      current_io_operation <= IO_NONE;
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Process
 
-      sdram_command <= COMMAND_NOP;
+    always @(posedge clk) begin
+        if (reset) begin
+            // 2. Assert and hold CKE at logic low
+            SDRAM_CKE <= 0;
 
-      p0_ready <= 0;
+            delay_counter <= 0;
 
-      p0_wr_queue <= 0;
-      p0_rd_queue <= 0;
-
-      dq_output <= 0;
-
-      p0_q <= 0;
-    end else begin
-      p0_wr_prev <= p0_wr_req;
-      p0_rd_prev <= p0_rd_req;
-      // Cache port 0 input values
-      if (p0_wr_start /*&& current_io_operation != IO_WRITE*/) begin
-        p0_wr_queue <= 1;
-
-        p0_byte_en_queue <= p0_byte_en;
-        p0_addr_queue <= p0_addr;
-        p0_data_queue <= p0_data;
-      end else if (p0_rd_start /*&& current_io_operation != IO_READ*/) begin
-        p0_rd_queue   <= 1;
-
-        p0_addr_queue <= p0_addr;
-      end
-
-      // Default to NOP at all times in between commands
-      // NOP
-      sdram_command <= COMMAND_NOP;
-
-      if (state != INIT) begin
-        refresh_counter <= refresh_counter + 16'h1;
-      end
-
-      case (state)
-        INIT: begin
-          delay_counter <= delay_counter + 32'h1;
-
-          if (delay_counter == CYCLES_UNTIL_START_INHIBIT) begin
-            // Start setting inhibit
-            // 5. Starting at some point during this 100us period, bring CKE high
-            SDRAM_CKE <= 1;
-
-            // We're already asserting NOP above
-          end else if (delay_counter == CYCLES_UNTIL_CLEAR_INHIBIT) begin
-            // Clear inhibit, start precharge
-            sdram_command <= COMMAND_PRECHARGE;
-
-            // Mark all banks for refresh
-            SDRAM_A[PRECHARGE_BIT]   <= 1;
-          end else if (delay_counter == CYCLES_UNTIL_INIT_PRECHARGE_END || delay_counter == CYCLES_UNTIL_REFRESH1_END) begin
-            // Precharge done (or first auto refresh), auto refresh
-            // CKE high specifies auto refresh
-            SDRAM_CKE <= 1;
-
-            sdram_command <= COMMAND_AUTO_REFRESH;
-          end else if (delay_counter == CYCLES_UNTIL_REFRESH2_END) begin
-            // Second auto refresh done, load mode register
-            sdram_command <= COMMAND_LOAD_MODE_REG;
-
-            SDRAM_BA <= '0;
-
-            SDRAM_A <= configured_mode;
-          end else if (delay_counter == CYCLES_UNTIL_REFRESH2_END + SETTING_T_MRD_MIN_LOAD_MODE_CLOCK_CYCLES) begin
-            // We can now execute commands
-            state <= IDLE;
-          end
-        end
-        IDLE: begin
-          // Stop outputting on DQ and hold in high Z
-          dq_output <= 0;
-
-          p0_ready <= 0;
-
-          current_io_operation <= IO_NONE;
-
-          if (refresh_counter >= CYCLES_PER_REFRESH[15:0]) begin
-            // Trigger refresh
-            state <= DELAY;
+            state <= INIT;
             delay_state <= IDLE;
-            delay_counter <= CYCLES_FOR_AUTOREFRESH - 32'h2;
+            current_io_operation <= IO_NONE;
 
-            refresh_counter <= 0;
+            sdram_command <= COMMAND_NOP;
 
-            sdram_command <= COMMAND_AUTO_REFRESH;
-          end else if (p0_wr_start || p0_wr_queue) begin
-            // Port 0 write
-            state <= DELAY;
-            delay_state <= WRITE;
+            port_wr_prev <= 0;
+            port_rd_prev <= 0;
 
-            current_io_operation <= IO_WRITE;
+            port_byte_en_queue <= 0;
+            port_addr_queue <= 0;
+            port_data_queue <= 0;
 
-            // Clear queued action
-            p0_wr_queue <= 0;
+            port_wr_queue <= 0;
+            port_rd_queue <= 0;
 
-            set_active_command(0, p0_addr_current);
-          end else if (p0_rd_start || p0_rd_queue) begin
-            // Port 0 read
-            state <= DELAY;
-            delay_state <= READ;
+            port_ready <= 0;
 
-            current_io_operation <= IO_READ;
+            port_q <= 0;
 
-            set_active_command(0, p0_addr_current);
-          end
-        end
-        DELAY: begin
-          if (delay_counter > 0) begin
-            delay_counter <= delay_counter - 32'h1;
-          end else begin
-            state <= delay_state;
-            delay_state <= IDLE;
+            dq_output <= 0;
 
-            if (delay_state == IDLE && current_io_operation != IO_NONE) begin
-              case (active_port)
-                0: p0_ready <= 1;
-              endcase
+        end else begin
+
+
+            port_wr_prev <= port_wr;
+            port_rd_prev <= port_rd;
+            // Cache port 0 input values
+            if (port_wr_req  /*&& current_io_operation != IO_WRITE*/) begin
+                port_wr_queue <= 1;
+
+                port_byte_en_queue <= port_byte_en;
+                port_addr_queue <= port_addr;
+                port_data_queue <= port_data;
+            end else if (port_rd_req  /*&& current_io_operation != IO_READ*/) begin
+                port_rd_queue   <= 1;
+
+                port_addr_queue <= port_addr;
             end
-          end
-        end
-        WRITE: begin
-          // Write to the selected row
-          port_selection active_port_entries;
 
-          state <= DELAY;
-          // A write must wait for auto precharge (tWR) and precharge command period (tRP)
-          // Takes one cycle to get back to IDLE, and another to read command
-          delay_counter <= CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND;
+            // Default to NOP at all times in between commands
+            // NOP
+            sdram_command <= COMMAND_NOP;
 
-          active_port_entries = get_active_port();
+            if (state != INIT) begin
+                refresh_counter <= refresh_counter + 16'h1;
+            end
 
-          sdram_command <= COMMAND_WRITE;
+            case (state)
+                INIT: begin
+                    delay_counter <= delay_counter + 32'h1;
 
-          // NOTE: Bank is still set from ACTIVE command assertion
-          // High bit enables auto precharge. I assume the top 2 bits are unused
-          SDRAM_A <= '0;
-          SDRAM_A[PRECHARGE_BIT] <= 1'b1;
-          SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
-          // Enable DQ output
-          dq_output <= 1;
-          sdram_data <= active_port_entries.port_data;
+                    if (delay_counter == CYCLES_UNTIL_START_INHIBIT) begin
+                        // Start setting inhibit
+                        // 5. Starting at some point during this 100us period, bring CKE high
+                        SDRAM_CKE <= 1;
 
-          // Use byte enable from port
-          SDRAM_DQM <= ~active_port_entries.port_byte_en;
-        end
-        READ: begin
-          // Read to the selected row
-          port_selection active_port_entries;
+                        // We're already asserting NOP above
+                    end else if (delay_counter == CYCLES_UNTIL_CLEAR_INHIBIT) begin
+                        // Clear inhibit, start precharge
+                        sdram_command <= COMMAND_PRECHARGE;
 
-          if (CAS_LATENCY == 1 && ~SETTING_USE_FAST_INPUT_REGISTER) begin
-            // Go directly to read
-            state <= READ_OUTPUT;
-          end else begin
-            state <= DELAY;
-            delay_state <= READ_OUTPUT;
+                        // Mark all banks for refresh
+                        SDRAM_A[PRECHARGE_BIT] <= 1;
+                    end else if (delay_counter == CYCLES_UNTIL_INIT_PRECHARGE_END || delay_counter == CYCLES_UNTIL_REFRESH1_END) begin
+                        // Precharge done (or first auto refresh), auto refresh
+                        // CKE high specifies auto refresh
+                        SDRAM_CKE <= 1;
 
-            read_counter <= 0;
+                        sdram_command <= COMMAND_AUTO_REFRESH;
+                    end else if (delay_counter == CYCLES_UNTIL_REFRESH2_END) begin
+                        // Second auto refresh done, load mode register
+                        sdram_command <= COMMAND_LOAD_MODE_REG;
 
-            // Takes one cycle to go to read data, and one to actually read the data
-            // Fast input register delays operation by a cycle
-            delay_counter <= CAS_LATENCY - 32'h2 + SETTING_USE_FAST_INPUT_REGISTER;
-          end
+                        SDRAM_BA <= '0;
 
-          active_port_entries = get_active_port();
+                        SDRAM_A <= configured_mode;
+                    end else if (delay_counter == CYCLES_UNTIL_REFRESH2_END + SETTING_T_MRD_MIN_LOAD_MODE_CLOCK_CYCLES) begin
+                        // We can now execute commands
+                        state <= IDLE;
+                    end
+                end
+                IDLE: begin
+                    // Stop outputting on DQ and hold in high Z
+                    dq_output <= 0;
 
-          // Clear queued action
-          p0_rd_queue <= 0;
+                    port_ready <= 0;
 
-          sdram_command <= COMMAND_READ;
+                    current_io_operation <= IO_NONE;
 
-          // NOTE: Bank is still set from ACTIVE command assertion
-          // High bit enables auto precharge. I assume the top 2 bits are unused
-          SDRAM_A <= '0;
-          SDRAM_A[PRECHARGE_BIT] <= 1'b1;
-          SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
+                    if (refresh_counter >= CYCLES_PER_REFRESH[15:0]) begin
+                        // Trigger refresh
+                        state <= DELAY;
+                        delay_state <= IDLE;
+                        delay_counter <= CYCLES_FOR_AUTOREFRESH - 32'h2;
 
-          // Fetch all bytes
-          SDRAM_DQM <= 2'b0;
-        end
-        READ_OUTPUT: begin
-          reg [P0_OUTPUT_WIDTH-1:0] temp;
+                        refresh_counter <= 0;
+
+                        sdram_command <= COMMAND_AUTO_REFRESH;
+                    end else begin
+
+                        if (port_wr_queue) begin
+                            state <= DELAY;
+                            delay_state <= WRITE;
+
+                            current_io_operation <= IO_WRITE;
+
+                            set_active_command();
+                        end else if (port_rd_queue) begin
+                            state <= DELAY;
+                            delay_state <= READ;
+
+                            current_io_operation <= IO_READ;
+
+                            set_active_command();
+                        end
+                    end
+                end
+                DELAY: begin
+                    if (delay_counter > 0) begin
+                        delay_counter <= delay_counter - 32'h1;
+                    end else begin
+                        state <= delay_state;
+                        delay_state <= IDLE;
+
+                        if (delay_state == IDLE && current_io_operation != IO_NONE) begin
+                            port_ready <= 1;
+                        end
+                    end
+                end
+                WRITE: begin
+                    // Write to the selected row
+                    port_selection active_port_entries;
+
+                    state <= DELAY;
+                    // A write must wait for auto precharge (tWR) and precharge command period (tRP)
+                    // Takes one cycle to get back to IDLE, and another to read command
+                    delay_counter <= CYCLES_AFTER_WRITE_FOR_NEXT_COMMAND;
+
+                    active_port_entries = get_active_port();
+
+                    sdram_command <= COMMAND_WRITE;
+
+                    // NOTE: Bank is still set from ACTIVE command assertion
+                    // High bit enables auto precharge. I assume the top 2 bits are unused
+                    SDRAM_A <= '0;
+                    SDRAM_A[PRECHARGE_BIT] <= 1'b1;
+                    SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
+                    // Enable DQ output
+                    dq_output <= 1;
+                    sdram_data <= active_port_entries.port_data;
+
+                    // Use byte enable from port
+                    SDRAM_DQM <= ~active_port_entries.port_byte_en;
+                end
+                READ: begin
+                    // Read to the selected row
+                    port_selection active_port_entries;
+
+                    if (CAS_LATENCY == 1 && ~SETTING_USE_FAST_INPUT_REGISTER) begin
+                        // Go directly to read
+                        state <= READ_OUTPUT;
+                    end else begin
+                        state <= DELAY;
+                        delay_state <= READ_OUTPUT;
+
+                        read_counter <= 0;
+
+                        // Takes one cycle to go to read data, and one to actually read the data
+                        // Fast input register delays operation by a cycle
+                        delay_counter <= CAS_LATENCY - 32'h2 + SETTING_USE_FAST_INPUT_REGISTER;
+                    end
+
+                    active_port_entries = get_active_port();
+
+                    // Clear queued action
+                    port_rd_queue <= 0;
+
+                    sdram_command <= COMMAND_READ;
+
+                    // NOTE: Bank is still set from ACTIVE command assertion
+                    // High bit enables auto precharge. I assume the top 2 bits are unused
+                    SDRAM_A <= '0;
+                    SDRAM_A[PRECHARGE_BIT] <= 1'b1;
+                    SDRAM_A[COL_WIDTH-1:0] <= active_port_entries.port_addr;
+
+                    // Fetch all bytes
+                    SDRAM_DQM <= 0;
+                end
+                READ_OUTPUT: begin
+                    /*
+          reg [(8*DATA_WIDTH)-1:0] temp;
           reg [  3:0] expected_count;
 
-          case (active_port)
-            0: begin
-              temp[P0_OUTPUT_WIDTH-1:0] = p0_q;
+          temp = 0;
+          temp[PORT_OUTPUT_WIDTH-1:0] = port_q;
 
-              expected_count = P0_BURST_LENGTH;
-            end
-          endcase
+          expected_count = PORT_BURST_LENGTH;
 
           if (read_counter < expected_count) begin
             read_counter <= read_counter + 4'h1;
@@ -503,35 +505,42 @@ module sdram #(
           end
 
           case (read_counter)
-            0: temp[DATA_WIDTH-1:0] = sdram_dq_reg;
-            1: temp[(2*DATA_WIDTH)-1:DATA_WIDTH] = sdram_dq_reg;
-            2: temp[(3*DATA_WIDTH)-1:(2*DATA_WIDTH)] = sdram_dq_reg;
-            3: temp[(4*DATA_WIDTH)-1:(3*DATA_WIDTH)] = sdram_dq_reg;
-            4: temp[(5*DATA_WIDTH)-1:(4*DATA_WIDTH)] = sdram_dq_reg;
-            5: temp[(6*DATA_WIDTH)-1:(5*DATA_WIDTH)] = sdram_dq_reg;
-            6: temp[(7*DATA_WIDTH)-1:(6*DATA_WIDTH)] = sdram_dq_reg;
-            7: temp[(8*DATA_WIDTH)-1:(7*DATA_WIDTH)] = sdram_dq_reg;
+            0: temp[DATA_WIDTH-1:0] = SDRAM_DQ;
+            1: temp[(2*DATA_WIDTH)-1:DATA_WIDTH] = SDRAM_DQ;
+            2: temp[(3*DATA_WIDTH)-1:(2*DATA_WIDTH)] = SDRAM_DQ;
+            3: temp[(4*DATA_WIDTH)-1:(3*DATA_WIDTH)] = SDRAM_DQ;
+            4: temp[(5*DATA_WIDTH)-1:(4*DATA_WIDTH)] = SDRAM_DQ;
+            5: temp[(6*DATA_WIDTH)-1:(5*DATA_WIDTH)] = SDRAM_DQ;
+            6: temp[(7*DATA_WIDTH)-1:(6*DATA_WIDTH)] = SDRAM_DQ;
+            7: temp[(8*DATA_WIDTH)-1:(7*DATA_WIDTH)] = SDRAM_DQ;
           endcase
 
-          case (active_port)
-            0: begin
-              p0_q <= temp[P0_OUTPUT_WIDTH-1:0];
 
-              if (read_counter == expected_count) begin
-                p0_ready <= 1;
-              end
-            end
-          endcase
+          port_q <= temp[PORT_OUTPUT_WIDTH-1:0];
+
+          if (read_counter == expected_count) begin
+            port_ready <= 1;
+          end
+          */
+
+`ifdef TESTBENCH
+                    port_q <= sdram_dq_reg;
+`else
+                    port_q <= SDRAM_DQ;
+`endif
+                    state <= IDLE;
+                    port_ready <= 1;
+
+                end
+            endcase
         end
-      endcase
     end
-  end
 
-  assign SDRAM_CLK = sdram_clk;
+    assign SDRAM_CLK = sdram_clk;
 
-  // This DDIO block doesn't double the clock, it just relocates the RAM clock to trigger
-  // on the negative edge
-  /*
+    // This DDIO block doesn't double the clock, it just relocates the RAM clock to trigger
+    // on the negative edge
+    /*
   altddio_out #(
       .extend_oe_disable("OFF"),
       .intended_device_family("Cyclone V"),
@@ -555,8 +564,10 @@ module sdram #(
   );
   */
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // Parameter validation
+`ifdef TESTBENCH
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Parameter validation
 
   initial begin
     $info("Instantiated SDRAM with the following settings");
@@ -596,9 +607,9 @@ module sdram #(
 
     $info("--------------------");
     $info("Port values:");
-    $info("  Port 0 burst length %d, port width %d", P0_BURST_LENGTH, P0_OUTPUT_WIDTH);
+    $info("  Port 0 burst length %d, port width %d", PORT_BURST_LENGTH, PORT_OUTPUT_WIDTH);
 
-    if (P0_BURST_LENGTH > BURST_LENGTH) begin
+    if (PORT_BURST_LENGTH > BURST_LENGTH) begin
       $error("Port 0 burst length exceeds global burst length");
     end
 
@@ -615,5 +626,7 @@ module sdram #(
     $info("  Cycles until between active commands %f, command duration %f",
           CYCLES_BETWEEN_ACTIVE_COMMAND, CYCLES_FOR_ACTIVE_ROW);
   end
+
+`endif
 
 endmodule

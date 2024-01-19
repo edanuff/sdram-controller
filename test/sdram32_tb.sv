@@ -12,17 +12,17 @@ module sdram32_tb;
   reg reset = 0;
 
   wire init_complete;
-  wire p0_ready;
-  wire p0_available;
+  wire port_ready;
+  wire port_available;
 
-  reg [20:0] p0_addr = 0;
-  reg [31:0] p0_data = 0;
-  wire [31:0] p0_q;
+  reg [20:0] port_addr = 0;
+  reg [31:0] port_data = 0;
+  wire [31:0] port_q;
 
-  reg p0_wr_req = 0;
-  reg p0_rd_req = 0;
+  reg port_wr_req = 0;
+  reg port_rd_req = 0;
 
-  reg [3:0] p0_byte_en = 0;
+  reg [3:0] port_byte_en = 0;
 
   always begin
     #5 clk <= ~clk;
@@ -56,16 +56,19 @@ module sdram32_tb;
 
   sdram #(
       .CLOCK_SPEED_MHZ(100),
+      .PORT_ADDR_WIDTH(21),
+      .PORT_OUTPUT_WIDTH(32),
       .CAS_LATENCY(2),
       .SETTING_REFRESH_TIMER_NANO_SEC(15000),
       .SETTING_T_WR_MIN_WRITE_AUTO_PRECHARGE_RECOVERY_NANO_SEC(16),
       .BURST_LENGTH(1),
-      .P0_BURST_LENGTH(1),
+      .PORT_BURST_LENGTH(1),
       .DATA_WIDTH(32),
       .ROW_WIDTH(11),
-      .COL_WIDTH(9),
+      .COL_WIDTH(8),
       .PRECHARGE_BIT(10),
-      .DQM_WIDTH(4)
+      .DQM_WIDTH(4),
+      .SETTING_USE_FAST_INPUT_REGISTER(1)
   ) sdram (
       .clk(clk),
       .sdram_clk(!clk),
@@ -73,16 +76,16 @@ module sdram32_tb;
       .init_complete(init_complete),
 
       // Port 0
-      .p0_addr(p0_addr),
-      .p0_data(p0_data),
-      .p0_byte_en(p0_byte_en),
-      .p0_q(p0_q),
+      .port_addr(port_addr),
+      .port_data(port_data),
+      .port_byte_en(port_byte_en),
+      .port_q(port_q),
 
-      .p0_wr_req(p0_wr_req),
-      .p0_rd_req(p0_rd_req),
+      .port_wr(port_wr_req),
+      .port_rd(port_rd_req),
 
-      .p0_available(p0_available),
-      .p0_ready(p0_ready),
+      .port_available(port_available),
+      .port_ready(port_ready),
 
       .SDRAM_DQ(dq),
       .SDRAM_A(addr),
@@ -96,18 +99,18 @@ module sdram32_tb;
       .SDRAM_CLK(chip_clk)
     );
 
-    always @(p0_rd_req, p0_wr_req, p0_addr, p0_data, p0_q, p0_ready, p0_available) begin
-        $display("Time: %0t | Port 0 | RD: %b WR: %b ADDR: %h DIN: %h DOUT: %h READY: %b AVAIL: %b", $time, p0_rd_req, p0_wr_req, p0_addr, p0_data, p0_q, p0_ready, p0_available);
+    always @(port_rd_req, port_wr_req, port_addr, port_data, port_q, port_ready, port_available) begin
+        $display("Time: %0t | Port 0 | RD: %b WR: %b ADDR: %h DIN: %h DOUT: %h READY: %b AVAIL: %b", $time, port_rd_req, port_wr_req, port_addr, port_data, port_q, port_ready, port_available);
     end
     
     always @(sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke) begin
         $display("Time: %0t | CMD: %h SDRAM_DQ: %h SDRAM_A: %h SDRAM_DQM: %b SDRAM_BA: %b SDRAM_nCS: %b SDRAM_nWE: %b SDRAM_nRAS: %b SDRAM_nCAS: %b SDRAM_CKE: %b", $time, sdram_cmd, dq, addr, dqm, ba, cs_n, we_n, ras_n, cas_n, cke);
     end
     
-    wire rdq = sdram.p0_rd_queue;
-    wire wrq = sdram.p0_wr_queue;
+    wire rdq = sdram.port_rd_queue;
+    wire wrq = sdram.port_wr_queue;
     always @(rdq, wrq) begin
-        $display("Time: %0t | Port 0 | RD: %b WR: %b RDQ: %b WRQ: %b", $time, p0_rd_req, p0_wr_req, rdq, wrq);
+        $display("Time: %0t | Port 0 | RD: %b WR: %b RDQ: %b WRQ: %b", $time, port_rd_req, port_wr_req, rdq, wrq);
     end
     
   initial begin
@@ -128,172 +131,172 @@ module sdram32_tb;
 
 
     $display("Write 1 at %t", $time());
-    p0_addr = 21'h00_2020;
-    p0_data = 32'h1234;
+    port_addr = 21'h00_2020;
+    port_data = 32'h1234;
 
-    p0_byte_en = 4'hf;
-    p0_wr_req = 1;
+    port_byte_en = 4'hf;
+    port_wr_req = 1;
 
     #20;
-    p0_addr = 0;
-    p0_data = 0;
+    port_addr = 0;
+    port_data = 0;
     #20;
-    p0_wr_req = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 2 at %t", $time());
-    p0_addr   = 21'h00_2021;
-    p0_data   = 32'h5678;
+    port_addr   = 21'h00_2021;
+    port_data   = 32'h5678;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
+    port_addr   = 0;
+    port_data   = 0;
     #20;
-    p0_wr_req = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 3 at %t", $time());
-    p0_addr   = 21'h00_2022;
-    p0_data   = 32'h9ABC;
+    port_addr   = 21'h00_2022;
+    port_data   = 32'h9ABC;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 4 at %t", $time());
-    p0_addr   = 21'h00_2023;
-    p0_data   = 32'hDEF0;
+    port_addr   = 21'h00_2023;
+    port_data   = 32'hDEF0;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 5 at %t", $time());
-    p0_addr   = 21'h00_2024;
-    p0_data   = 32'hFEDC;
+    port_addr   = 21'h00_2024;
+    port_data   = 32'hFEDC;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 6 at %t", $time());
-    p0_addr   = 21'h00_2025;
-    p0_data   = 32'hBA98;
+    port_addr   = 21'h00_2025;
+    port_data   = 32'hBA98;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 7 at %t", $time());
-    p0_addr   = 21'h00_2026;
-    p0_data   = 32'h7654;
+    port_addr   = 21'h00_2026;
+    port_data   = 32'h7654;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Write 8 at %t", $time());
-    p0_addr   = 21'h00_2027;
-    p0_data   = 32'h3210;
+    port_addr   = 21'h00_2027;
+    port_data   = 32'h3210;
 
-    p0_wr_req = 1;
+    port_wr_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_data   = 0;
-    p0_wr_req = 0;
+    port_addr   = 0;
+    port_data   = 0;
+    port_wr_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     // Read
     $display("Read 1 at %t", $time());
-    p0_addr = 21'h00_2020;
-    p0_data = 32'hFFFF;
+    port_addr = 21'h00_2020;
+    port_data = 32'hFFFF;
 
-    p0_byte_en = 2'h2;
-    p0_rd_req = 1;
+    port_byte_en = 2'h2;
+    port_rd_req = 1;
 
     #20;
-    p0_addr   = 0;
-    p0_rd_req = 0;
+    port_addr   = 0;
+    port_rd_req = 0;
 
-    //@(posedge clk iff p0_ready);
-    wait(p0_ready);
+    //@(posedge clk iff port_ready);
+    wait(port_ready);
     #5;
 
     $display("Read 2 at %t", $time());
-    p0_addr = 21'h00_2021;
-    p0_data = 32'hFFFF;
+    port_addr = 21'h00_2021;
+    port_data = 32'hFFFF;
 
-    p0_byte_en = 2'h2;
-    p0_rd_req = 1;
+    port_byte_en = 2'h2;
+    port_rd_req = 1;
 
     #10;
-    p0_addr   = 0;
-    p0_rd_req = 0;
+    port_addr   = 0;
+    port_rd_req = 0;
 
-    wait(p0_ready);
+    wait(port_ready);
 
     wait(sdram.refresh_counter == 751);
     #5;
     $display("refresh 1 at %t", $time());
 
-     //wait(p0_available | p0_ready);
+     //wait(port_available | port_ready);
 
-    p0_addr = 21'h00_2022;
-    p0_data = 32'hFFFF;
+    port_addr = 21'h00_2022;
+    port_data = 32'hFFFF;
 
-    p0_byte_en = 2'h2;
-    p0_rd_req = 1;
+    port_byte_en = 2'h2;
+    port_rd_req = 1;
 
     #10;
-    p0_addr   = 0;
-    p0_rd_req = 0;
+    port_addr   = 0;
+    port_rd_req = 0;
 
     #1000;
 
